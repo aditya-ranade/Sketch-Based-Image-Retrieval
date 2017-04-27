@@ -15,6 +15,11 @@
 		A357CEF51EB1A74700CB7CCE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A357CEF31EB1A74700CB7CCE /* LaunchScreen.storyboard */; };
 		A357CF001EB1A74700CB7CCE /* SIBRTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A357CEFF1EB1A74700CB7CCE /* SIBRTests.m */; };
 		A357CF0B1EB1A74700CB7CCE /* SIBRUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = A357CF0A1EB1A74700CB7CCE /* SIBRUITests.m */; };
+		A357CF1F1EB1A8D400CB7CCE /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A357CF1E1EB1A8D400CB7CCE /* opencv2.framework */; };
+		A357CF451EB1AAFC00CB7CCE /* HogDetect.mm in Sources */ = {isa = PBXBuildFile; fileRef = A357CF441EB1AAFC00CB7CCE /* HogDetect.mm */; };
+		A357CF481EB1AB0800CB7CCE /* GFHOG.mm in Sources */ = {isa = PBXBuildFile; fileRef = A357CF461EB1AB0800CB7CCE /* GFHOG.mm */; };
+		A357CF4B1EB1AC3700CB7CCE /* opencv in Resources */ = {isa = PBXBuildFile; fileRef = A357CF4A1EB1AC3700CB7CCE /* opencv */; };
+		A357CF541EB1AEF200CB7CCE /* SuperLU_5.2.1 in Resources */ = {isa = PBXBuildFile; fileRef = A357CF531EB1AEF200CB7CCE /* SuperLU_5.2.1 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +56,15 @@
 		A357CF061EB1A74700CB7CCE /* SIBRUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SIBRUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A357CF0A1EB1A74700CB7CCE /* SIBRUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SIBRUITests.m; sourceTree = "<group>"; };
 		A357CF0C1EB1A74700CB7CCE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A357CF1E1EB1A8D400CB7CCE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = SIBR/opencv2.framework; sourceTree = "<group>"; };
+		A357CF441EB1AAFC00CB7CCE /* HogDetect.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HogDetect.mm; sourceTree = "<group>"; };
+		A357CF461EB1AB0800CB7CCE /* GFHOG.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GFHOG.mm; sourceTree = "<group>"; };
+		A357CF471EB1AB0800CB7CCE /* GFHOG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFHOG.h; sourceTree = "<group>"; };
+		A357CF491EB1AB0D00CB7CCE /* HogDetect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HogDetect.h; sourceTree = "<group>"; };
+		A357CF4A1EB1AC3700CB7CCE /* opencv */ = {isa = PBXFileReference; lastKnownFileType = folder; path = opencv; sourceTree = "<group>"; };
+		A357CF511EB1AE0200CB7CCE /* tracking_c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracking_c.h; sourceTree = "<group>"; };
+		A357CF521EB1AE5300CB7CCE /* objdetect_c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objdetect_c.h; sourceTree = "<group>"; };
+		A357CF531EB1AEF200CB7CCE /* SuperLU_5.2.1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SuperLU_5.2.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A357CF1F1EB1A8D400CB7CCE /* opencv2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +96,7 @@
 		A357CED91EB1A74700CB7CCE = {
 			isa = PBXGroup;
 			children = (
+				A357CF1E1EB1A8D400CB7CCE /* opencv2.framework */,
 				A357CEE41EB1A74700CB7CCE /* SIBR */,
 				A357CEFE1EB1A74700CB7CCE /* SIBRTests */,
 				A357CF091EB1A74700CB7CCE /* SIBRUITests */,
@@ -101,11 +117,19 @@
 		A357CEE41EB1A74700CB7CCE /* SIBR */ = {
 			isa = PBXGroup;
 			children = (
+				A357CF531EB1AEF200CB7CCE /* SuperLU_5.2.1 */,
 				A357CEE81EB1A74700CB7CCE /* AppDelegate.h */,
+				A357CF4A1EB1AC3700CB7CCE /* opencv */,
 				A357CEE91EB1A74700CB7CCE /* AppDelegate.m */,
 				A357CEEB1EB1A74700CB7CCE /* ViewController.h */,
+				A357CF461EB1AB0800CB7CCE /* GFHOG.mm */,
+				A357CF521EB1AE5300CB7CCE /* objdetect_c.h */,
+				A357CF471EB1AB0800CB7CCE /* GFHOG.h */,
 				A357CEEC1EB1A74700CB7CCE /* ViewController.mm */,
+				A357CF511EB1AE0200CB7CCE /* tracking_c.h */,
+				A357CF491EB1AB0D00CB7CCE /* HogDetect.h */,
 				A357CEEE1EB1A74700CB7CCE /* Main.storyboard */,
+				A357CF441EB1AAFC00CB7CCE /* HogDetect.mm */,
 				A357CEF11EB1A74700CB7CCE /* Assets.xcassets */,
 				A357CEF31EB1A74700CB7CCE /* LaunchScreen.storyboard */,
 				A357CEF61EB1A74700CB7CCE /* Info.plist */,
@@ -249,7 +273,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A357CF541EB1AEF200CB7CCE /* SuperLU_5.2.1 in Resources */,
 				A357CEF51EB1A74700CB7CCE /* LaunchScreen.storyboard in Resources */,
+				A357CF4B1EB1AC3700CB7CCE /* opencv in Resources */,
 				A357CEF21EB1A74700CB7CCE /* Assets.xcassets in Resources */,
 				A357CEF01EB1A74700CB7CCE /* Main.storyboard in Resources */,
 			);
@@ -277,6 +303,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A357CEED1EB1A74700CB7CCE /* ViewController.mm in Sources */,
+				A357CF451EB1AAFC00CB7CCE /* HogDetect.mm in Sources */,
+				A357CF481EB1AB0800CB7CCE /* GFHOG.mm in Sources */,
 				A357CEEA1EB1A74700CB7CCE /* AppDelegate.m in Sources */,
 				A357CEE71EB1A74700CB7CCE /* main.m in Sources */,
 			);
@@ -430,6 +458,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = T3CU64DN36;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/SIBR",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = SIBR/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = A.SIBR;
@@ -442,6 +475,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = T3CU64DN36;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/SIBR",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = SIBR/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = A.SIBR;
@@ -518,6 +556,7 @@
 				A357CF111EB1A74700CB7CCE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A357CF121EB1A74700CB7CCE /* Build configuration list for PBXNativeTarget "SIBRTests" */ = {
 			isa = XCConfigurationList;
@@ -526,6 +565,7 @@
 				A357CF141EB1A74700CB7CCE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A357CF151EB1A74700CB7CCE /* Build configuration list for PBXNativeTarget "SIBRUITests" */ = {
 			isa = XCConfigurationList;
@@ -534,6 +574,7 @@
 				A357CF171EB1A74700CB7CCE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
