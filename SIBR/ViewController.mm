@@ -96,7 +96,6 @@ using namespace cv;
         mask = cvLoadImage(image_path.c_str(),0);
         if (!mask){
             std::cout <<"Error Loading Mask" << std::endl;
-            return 0;
         }
         cvZero(mask);
         cvCopyMakeBorder(mask,mask,cvPoint(setSize/100,setSize/100),IPL_BORDER_CONSTANT);
@@ -110,6 +109,8 @@ using namespace cv;
     GFHOG descriptor;
     
     descriptor.Compute(img,(GFHOGType)type,mask);
+    
+    out_path = "/Users/aayushbhasin/Desktop/cv_finalProject/SIBR/output/output.txt";
     
     if (out_path.length()){
         //descriptor.saveToFile(out_path.c_str());
@@ -152,6 +153,5 @@ void writeVector(std::vector<double>& v, std::ofstream &str){
     
     
     // ALL DONE :)
-}
 @end
 
