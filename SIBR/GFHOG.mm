@@ -339,7 +339,8 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
     uvec colptrA(n+1);
     
     vec valuesA(nnz);
-    
+    fprintf(stderr, "in");
+
     
 
 	//if ( !(a = (double *)malloc(nnz * sizeof(double))) ) strerror(1);
@@ -351,6 +352,8 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 	index = 0;
 	if ( !(rhs = (double *) malloc(m * nrhs * sizeof(double))) ) strerror(1);;
 	row_inc = 0;
+    
+    fprintf(stderr, "in");
 	for (int y = 1; y < src->height-1; y++) {
 		for (int x = 1; x < src->width-1; x++) {
 			if (mask->imageData[x+y*src->width]) {  //Variable
@@ -424,12 +427,17 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 				 //Spread the right hand side so we can solve using TAUCS for
 				 //3 channels at once.
 				for (int chan=0; chan<src->nChannels; chan++) {
-					rhs[i+N*chan] = bb.val[chan];
+					
+                    if (i + N*chan > (m*nrhs)) printf("humped");
+                    rhs[i+N*chan] = bb.val[chan];
 				}
 				row_inc++;
 			}
 		}
 	}
+    
+    printf("out");
+    fflush(stdout);
 	assert(row_inc == N);
 	colptrA(n) = index;
 
@@ -449,7 +457,12 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 	//create_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
 	 //Set the default input options.
     printf("ascas");
+    rowindA.transform( [](double val) { return (val > 8640 ? 0.0 : val); } );
+    valuesA.transform( [](double val) { return (std::isnan(val) ? 0.0 : val); } );
     sp_mat A = sp_mat(rowindA, colptrA, valuesA, m, n);
+    //A.transform( [](double val) { return (std::isnan(val) ? 0.0 : val); } );
+    //mat A_ = mat(A);
+    //cout << A_.size() << endl;
     mat B = mat(rhs, m, nrhs);
 	//set_default_options(&options);
 	//options.ColPerm = NATURAL;

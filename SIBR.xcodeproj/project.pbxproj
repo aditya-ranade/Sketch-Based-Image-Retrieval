@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A334AE881EB5DB7500A13096 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A334AE871EB5DB7500A13096 /* libjpeg.a */; };
 		A334AE8A1EB5DC0400A13096 /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = A334AE891EB5DC0400A13096 /* 1.png */; };
+		A334AE8C1EB607B000A13096 /* 2.png in Resources */ = {isa = PBXBuildFile; fileRef = A334AE8B1EB607B000A13096 /* 2.png */; };
 		A357CEE71EB1A74700CB7CCE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A357CEE61EB1A74700CB7CCE /* main.m */; };
 		A357CEEA1EB1A74700CB7CCE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A357CEE91EB1A74700CB7CCE /* AppDelegate.m */; };
 		A357CEED1EB1A74700CB7CCE /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A357CEEC1EB1A74700CB7CCE /* ViewController.mm */; };
@@ -73,6 +74,7 @@
 /* Begin PBXFileReference section */
 		A334AE871EB5DB7500A13096 /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjpeg.a; sourceTree = "<group>"; };
 		A334AE891EB5DC0400A13096 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
+		A334AE8B1EB607B000A13096 /* 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 2.png; sourceTree = "<group>"; };
 		A357CEE21EB1A74700CB7CCE /* SIBR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SIBR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A357CEE61EB1A74700CB7CCE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A357CEE81EB1A74700CB7CCE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 		A357CEE51EB1A74700CB7CCE /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				A334AE8B1EB607B000A13096 /* 2.png */,
 				A334AE891EB5DC0400A13096 /* 1.png */,
 				A357CEE61EB1A74700CB7CCE /* main.m */,
 			);
@@ -387,6 +390,7 @@
 			files = (
 				A357CEF51EB1A74700CB7CCE /* LaunchScreen.storyboard in Resources */,
 				A357CF4B1EB1AC3700CB7CCE /* opencv in Resources */,
+				A334AE8C1EB607B000A13096 /* 2.png in Resources */,
 				A357CEF21EB1A74700CB7CCE /* Assets.xcassets in Resources */,
 				A334AE8A1EB5DC0400A13096 /* 1.png in Resources */,
 				A357CF911EB539BA00CB7CCE /* armadillo in Resources */,

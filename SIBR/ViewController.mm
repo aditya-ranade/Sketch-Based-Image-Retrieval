@@ -123,8 +123,23 @@ using namespace cv;
     
     printf("ad");
     
-    out_path = "/Users/aayushbhasin/Desktop/cv_finalProject/SIBR/output/output.txt";
-    
+    out_path = "~/Desktop/output.txt";
+    int sum1 = 0;
+    GFHOG::iterator it = descriptor.begin();
+    printf("\n");
+    for ( ; it < descriptor.end() ; it++){
+        sum1 += 1;
+        float sum = 0;
+        std::vector<double>::iterator it1 = it->begin();
+        //cout << *it1;
+        it1++;
+        for (; it1 < it->end(); it1++) {
+            cout << ',' << *it1;
+            sum += *it1;
+        }
+        //printf("\n\n%f\n\n", sum);
+    }
+    //printf("\n%d", sum1);
     if (out_path.length()){
         //descriptor.saveToFile(out_path.c_str());
         std::ofstream str;
@@ -136,6 +151,7 @@ using namespace cv;
                 str << std::endl;
             }
         }else{
+            printf("\n");
             std::cout << "Failed to Save Descriptor" << std::endl;
         }
     }
