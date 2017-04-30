@@ -41,6 +41,7 @@
 //
 //M*/
 
+
 #ifndef OPENCV_OBJDETECT_C_H
 #define OPENCV_OBJDETECT_C_H
 
@@ -163,3 +164,4 @@ CV_EXPORTS CvSeq* cvHaarDetectObjectsForROC( const CvArr* image,
 #endif
 
 #endif /* OPENCV_OBJDETECT_C_H */
+

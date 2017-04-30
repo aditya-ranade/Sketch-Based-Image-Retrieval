@@ -20,11 +20,17 @@
 //			See: http://stuartjames.info/license.aspx
 ////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+
 #include <vector>
 #include "opencv/cxcore.h"
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
+
+//#include "SuperLU_5.2.1/SRC/slu_ddefs.h"
+
+
+
+
 
 #define SETUP_SCALES 		scales.push_back(7);	scales.push_back(11);	scales.push_back(25);
 
@@ -40,6 +46,9 @@ enum GFHOGType{
 	Image,
 	Sketch
 };
+
+
+
 
 class GFHOG : public std::vector<std::vector<double> >
 {
@@ -60,4 +69,5 @@ private:
 	void histogramOfGradients(IplImage* edge,IplImage* gradient);
 	IplImage* poissoncompute(IplImage* src, IplImage* mask);
 	CvScalar sub(CvScalar a, CvScalar b);
+    
 };

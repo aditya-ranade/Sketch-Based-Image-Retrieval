@@ -1,7 +1,89 @@
+
+
+
 #include "GFHOG.h"
-#include "SuperLU_5.2.1/SRC/slu_ddefs.h"
+//#include "SuperLU_5.2.1/SRC/slu_ddefs.h"
 #include <map>
 #include "HogDetect.h"
+#include <cstring>
+
+
+#define ARMA_USE_SUPERLU 1
+
+
+#include "armadillo"
+
+
+
+using namespace arma;
+
+using namespace superlu;
+
+
+
+/////////////////////////////////////////////////////////
+void create_CompCol_Matrix(SuperMatrix *A,int m,int n,int nnz, double *nzval,int *rowind,int *colptr,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
+    NCformat *Astore;
+    A->Stype = stype;
+    A->Dtype = dtype;
+    A->Mtype = mtype;
+    A->nrow = m;
+    A->ncol = n;
+    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
+    ((unsigned long *) buf)[0] = sizeof(NCformat);
+    buf=buf+sizeof(double);
+    A->Store = (void *) (buf);
+    if ( !(A->Store) ) strerror(4);
+    Astore = (NCformat *)A->Store;
+    Astore->nnz = nnz;
+    Astore->nzval = nzval;
+    Astore->rowind = rowind;
+    Astore->colptr = colptr;
+    
+}
+void create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
+    DNformat    *Xstore;
+    X->Stype = stype;
+    X->Dtype = dtype;
+    X->Mtype = mtype;
+    X->nrow = m;
+    X->ncol = n;
+    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
+    ((unsigned long *) buf)[0] = sizeof(NCformat);
+    buf=buf+sizeof(double);
+    X->Store = (void *) buf;
+    Xstore = (DNformat *) X->Store;
+    Xstore->lda = ldx;
+    Xstore->nzval = (double *) x;
+    
+}
+
+
+
+
+
+int *intMalloc(int n) {
+    int *buf;
+    buf = (int *) superlu_malloc((size_t) n * sizeof(int));
+    if ( !buf ) {
+        strerror(1);
+    }
+    return (buf);
+}
+
+double *doubleMalloc(int n)
+{
+    double *buf;
+    buf = (double *) superlu_malloc((size_t)n * sizeof(double));
+    if ( !buf ) {
+        strerror(1);
+    }
+    return (buf);
+}
+
+
+
+
 
 GFHOG::GFHOG(void):_gradient(NULL)
 {
@@ -217,150 +299,148 @@ void GFHOG::gradientField(IplImage* inpmask32,IplImage* filtermask32)
 }
 
 IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
-	
-    return src;
+   
+
+    std::map<unsigned int,unsigned int>	masked;
+	int N = 0;
+    for (int y = 1; y < src->height-1; y++) {
+		for (int x = 1; x < src->width-1; x++) {
+			unsigned int id = y*src->width+x;
+			if (mask->imageData[id]) {  //Masked pixel
+				masked[id] = N;
+				N++;
+			}
+		}
+	}
+
+	SuperMatrix    A, L, U;
+	SuperMatrix    B;
+	NCformat       *Ustore;
+	double         *a,*rhs,*u;
+	int            *asub, *xa;
+	int            *perm_r;  //row permutations from partial pivoting
+	int            *perm_c;  //column permutation vector
+	int            info, nrhs,row_inc;
+	int            m, n, nnz,index;
+	superlu_options_t options;
+	SuperLUStat_t stat;
+	set_default_options(&options);
+
+	m = n =  N;
+	nnz = N * 5;
+
+	if ( !(a = doubleMalloc(nnz)) ) strerror(1);
+	if ( !(asub = intMalloc(nnz)) ) strerror(1);
+	if ( !(xa = intMalloc(n+1)) ) strerror(1);;
+
+
+	nrhs = 1;
+	index = 0;
+	if ( !(rhs = doubleMalloc(m * nrhs)) ) strerror(1);;
+	row_inc = 0;
+	for (int y = 1; y < src->height-1; y++) {
+		for (int x = 1; x < src->width-1; x++) {
+			if (mask->imageData[x+y*src->width]) {  //Variable
+				unsigned int id = x+y*src->width;
+				xa[row_inc] = index;
+
+				 //Right hand side is initialized to zero
+				CvScalar bb=cvScalarAll(0);
+
+				if (mask->imageData[(x)+(y-1)*src->width]) {
+					a[index] = 1.0;
+					asub[index] = masked[id-src->width];
+					index++;
+				} else {
+					// Known pixel, update right hand side
+					bb=sub(bb,cvGet2D(src,y-1,x));
+				}
+
+
+				if (mask->imageData[(x-1)+(y)*src->width]) {
+					a[index] = 1.0;
+					asub[index] = masked[id-1];
+					index++;
+				} else {
+					bb=sub(bb,cvGet2D(src,y,x-1));
+				}
+				a[index] = -4.0;
+				asub[index] = masked[id];
+				index++;
+
+				if (mask->imageData[(x+1)+(y)*src->width]) {
+					a[index] = 1.0;
+					asub[index] = masked[id+1];
+					index++;
+				} else {
+					bb=sub(bb,cvGet2D(src,y,x+1));
+				}
+
+				if (mask->imageData[(x)+(y+1)*src->width]) {
+					a[index] = 1.0;
+					asub[index] = masked[id+src->width];
+					index++;
+				} else {
+					bb=sub(bb,cvGet2D(src,y+1,x));
+				}
+
+				unsigned int i = masked[id];
+				 //Spread the right hand side so we can solve using TAUCS for
+				 //3 channels at once.
+				for (int chan=0; chan<src->nChannels; chan++) {
+					rhs[i+N*chan] = bb.val[chan];
+				}
+				row_inc++;
+			}
+		}
+	}
+	assert(row_inc == N);
+	xa[n] = index;
+
+	 //Create matrix A in the format expected by SuperLU.
+	create_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
+	 //Create right-hand side matrix B.
+	create_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
+	 //Set the default input options.
+	set_default_options(&options);
+	options.ColPerm = NATURAL;
+	options.Trans = TRANS;
+	options.ColPerm = COLAMD;
+	if ( !(perm_r = intMalloc(m)) ) strerror(1);
+	if ( !(perm_c = intMalloc(n)) ) strerror(1);
+
+	 //Initialize the statistics variables.
+	StatInit(&stat);
+	 //Solve the linear system.
+    dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
+	Ustore = (NCformat *)B.Store;
+	u = (double*) Ustore->nzval;
+	IplImage* result=cvCreateImage(cvGetSize(src),32,src->nChannels);
+	cvCopy(src,result);
+	for (int y = 1; y < src->height; y++) {
+		for (int x = 1; x < src->width; x++) {
+			if (mask->imageData[(x)+(y)*src->width]) {
+				unsigned int id = y*src->width+x;
+				unsigned int ii = masked[id];
+				CvScalar p;
+				for (int chan=0; chan<src->nChannels; chan++) {
+					p.val[chan]=u[ii+N*chan];
+				}
+				cvSet2D(result,y,x,p);
+			}
+		}
+	}
+	// Clean Up Solver
+	superlu_free (rhs);
+	superlu_free(perm_r);
+	superlu_free (perm_c);
+	Destroy_CompCol_Matrix(&A);
+	Destroy_SuperMatrix_Store(&B);
+	Destroy_SuperNode_Matrix(&L);
+	Destroy_CompCol_Matrix(&U);
+	return result;
 }
-//
-//    std::map<unsigned int,unsigned int>	  masked;
-//	int N = 0;  variable indexer
-//	for (int y = 1; y < src->height-1; y++) {
-//		for (int x = 1; x < src->width-1; x++) {
-//			unsigned int id = y*src->width+x;
-//			if (mask->imageData[id]) {  Masked pixel
-//				masked[id] = N;
-//				N++;
-//			}
-//		}
-//	}
-//
-//	SuperMatrix    A, L, U;
-//	SuperMatrix    B;
-//	NCformat       *Ustore;
-//	double         *a,*rhs,*u;
-//	int            *asub, *xa;
-//	int            *perm_r;  row permutations from partial pivoting 
-//	int            *perm_c;  column permutation vector 
-//	int            info, nrhs,row_inc;
-//	int            m, n, nnz,index;
-//	superlu_options_t options;
-//	SuperLUStat_t stat;
-//	set_default_options(&options);
-//
-//	m = n =  N;
-//	nnz = N * 5;
-//
-//	if ( !(a = doubleMalloc(nnz)) ) ABORT("Malloc fails for a[].");
-//	if ( !(asub = intMalloc(nnz)) ) ABORT("Malloc fails for asub[].");
-//	if ( !(xa = intMalloc(n+1)) ) ABORT("Malloc fails for xa[].");
-//
-//
-//	nrhs = 1;
-//	index = 0;
-//	if ( !(rhs = doubleMalloc(m * nrhs)) ) ABORT("Malloc fails for rhs[].");
-//	row_inc = 0;
-//	for (int y = 1; y < src->height-1; y++) {
-//		for (int x = 1; x < src->width-1; x++) {
-//			if (mask->imageData[x+y*src->width]) {  Variable
-//				unsigned int id = x+y*src->width;
-//				xa[row_inc] = index;
-//
-//				 Right hand side is initialized to zero
-//				CvScalar bb=cvScalarAll(0);
-//
-//				if (mask->imageData[(x)+(y-1)*src->width]) {
-//					a[index] = 1.0;
-//					asub[index] = masked[id-src->width];
-//					index++;
-//				} else {
-//					 Known pixel, update right hand side
-//					bb=sub(bb,cvGet2D(src,y-1,x));
-//				}
-//
-//
-//				if (mask->imageData[(x-1)+(y)*src->width]) {
-//					a[index] = 1.0;
-//					asub[index] = masked[id-1];
-//					index++;
-//				} else {
-//					bb=sub(bb,cvGet2D(src,y,x-1));
-//				}
-//				a[index] = -4.0;
-//				asub[index] = masked[id];
-//				index++;
-//
-//				if (mask->imageData[(x+1)+(y)*src->width]) {
-//					a[index] = 1.0;
-//					asub[index] = masked[id+1];
-//					index++;
-//				} else {
-//					bb=sub(bb,cvGet2D(src,y,x+1));
-//				}
-//
-//				if (mask->imageData[(x)+(y+1)*src->width]) {
-//					a[index] = 1.0;
-//					asub[index] = masked[id+src->width];
-//					index++;
-//				} else {
-//					bb=sub(bb,cvGet2D(src,y+1,x));
-//				}
-//
-//				unsigned int i = masked[id];
-//				 Spread the right hand side so we can solve using TAUCS for
-//				 3 channels at once.
-//				for (int chan=0; chan<src->nChannels; chan++) {
-//					rhs[i+N*chan] = bb.val[chan];
-//				}
-//				row_inc++;
-//			}
-//		}
-//	}
-//	assert(row_inc == N);
-//	xa[n] = index;
-//
-//	 Create matrix A in the format expected by SuperLU. 
-//	dCreate_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
-//	 Create right-hand side matrix B. 
-//	dCreate_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
-//	 Set the default input options. 
-//	set_default_options(&options);
-//	options.ColPerm = NATURAL;
-//	options.Trans = TRANS;
-//	options.ColPerm = COLAMD;
-//	if ( !(perm_r = intMalloc(m)) ) ABORT("Malloc fails for perm_r[].");
-//	if ( !(perm_c = intMalloc(n)) ) ABORT("Malloc fails for perm_c[].");
-//
-//	 Initialize the statistics variables. 
-//	StatInit(&stat);
-//	 Solve the linear system. 
-//	dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
-//	Ustore = (NCformat *)B.Store;
-//	u = (double*) Ustore->nzval;
-//	IplImage* result=cvCreateImage(cvGetSize(src),32,src->nChannels);
-//	cvCopy(src,result);
-//	for (int y = 1; y < src->height; y++) {
-//		for (int x = 1; x < src->width; x++) {
-//			if (mask->imageData[(x)+(y)*src->width]) {
-//				unsigned int id = y*src->width+x;
-//				unsigned int ii = masked[id];
-//				CvScalar p;
-//				for (int chan=0; chan<src->nChannels; chan++) {
-//					p.val[chan]=u[ii+N*chan];
-//				}
-//				cvSet2D(result,y,x,p);
-//			}
-//		}
-//	}
-//	 Clean Up Solver
-//	SUPERLU_FREE (rhs);
-//	SUPERLU_FREE (perm_r);
-//	SUPERLU_FREE (perm_c);
-//	Destroy_CompCol_Matrix(&A);
-//	Destroy_SuperMatrix_Store(&B);
-//	Destroy_SuperNode_Matrix(&L);
-//	Destroy_CompCol_Matrix(&U);
-//	return result;
-//}
-//
+
 
 inline CvScalar GFHOG::sub(CvScalar a, CvScalar b) {
 

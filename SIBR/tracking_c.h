@@ -41,6 +41,7 @@
 //
 //M*/
 
+
 #ifndef OPENCV_TRACKING_C_H
 #define OPENCV_TRACKING_C_H
 
@@ -230,3 +231,4 @@ CVAPI(const CvMat*)  cvKalmanCorrect( CvKalman* kalman, const CvMat* measurement
 
 
 #endif // OPENCV_TRACKING_C_H
+
