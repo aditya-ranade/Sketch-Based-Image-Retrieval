@@ -41,6 +41,7 @@
 //
 //M*/
 
+#ifndef __OPENCV_OBJDETECT_HPP__
 
 #ifndef OPENCV_OBJDETECT_C_H
 #define OPENCV_OBJDETECT_C_H
@@ -62,6 +63,7 @@ extern "C" {
 *                         Haar-like Object Detection functions                           *
 \****************************************************************************************/
 
+    
 #define CV_HAAR_MAGIC_VAL    0x42500000
 #define CV_TYPE_NAME_HAAR    "opencv-haar-classifier"
 
@@ -164,4 +166,5 @@ CV_EXPORTS CvSeq* cvHaarDetectObjectsForROC( const CvArr* image,
 #endif
 
 #endif /* OPENCV_OBJDETECT_C_H */
+#endif
 

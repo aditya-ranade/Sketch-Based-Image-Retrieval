@@ -8,8 +8,6 @@
 #include <cstring>
 
 
-#define ARMA_USE_SUPERLU 1
-
 
 #include "armadillo"
 
@@ -17,70 +15,70 @@
 
 using namespace arma;
 
-using namespace superlu;
+//using namespace superlu;
 
 
 
 /////////////////////////////////////////////////////////
-void create_CompCol_Matrix(SuperMatrix *A,int m,int n,int nnz, double *nzval,int *rowind,int *colptr,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
-    NCformat *Astore;
-    A->Stype = stype;
-    A->Dtype = dtype;
-    A->Mtype = mtype;
-    A->nrow = m;
-    A->ncol = n;
-    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
-    ((unsigned long *) buf)[0] = sizeof(NCformat);
-    buf=buf+sizeof(double);
-    A->Store = (void *) (buf);
-    if ( !(A->Store) ) strerror(4);
-    Astore = (NCformat *)A->Store;
-    Astore->nnz = nnz;
-    Astore->nzval = nzval;
-    Astore->rowind = rowind;
-    Astore->colptr = colptr;
-    
-}
-void create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
-    DNformat    *Xstore;
-    X->Stype = stype;
-    X->Dtype = dtype;
-    X->Mtype = mtype;
-    X->nrow = m;
-    X->ncol = n;
-    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
-    ((unsigned long *) buf)[0] = sizeof(NCformat);
-    buf=buf+sizeof(double);
-    X->Store = (void *) buf;
-    Xstore = (DNformat *) X->Store;
-    Xstore->lda = ldx;
-    Xstore->nzval = (double *) x;
-    
-}
-
-
-
-
-
-int *intMalloc(int n) {
-    int *buf;
-    buf = (int *) superlu_malloc((size_t) n * sizeof(int));
-    if ( !buf ) {
-        strerror(1);
-    }
-    return (buf);
-}
-
-double *doubleMalloc(int n)
-{
-    double *buf;
-    buf = (double *) superlu_malloc((size_t)n * sizeof(double));
-    if ( !buf ) {
-        strerror(1);
-    }
-    return (buf);
-}
-
+//void create_CompCol_Matrix(SuperMatrix *A,int m,int n,int nnz, double *nzval,int *rowind,int *colptr,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
+//    NCformat *Astore;
+//    A->Stype = stype;
+//    A->Dtype = dtype;
+//    A->Mtype = mtype;
+//    A->nrow = m;
+//    A->ncol = n;
+//    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
+//    ((unsigned long *) buf)[0] = sizeof(NCformat);
+//    buf=buf+sizeof(double);
+//    A->Store = (void *) (buf);
+//    if ( !(A->Store) ) strerror(4);
+//    Astore = (NCformat *)A->Store;
+//    Astore->nnz = nnz;
+//    Astore->nzval = nzval;
+//    Astore->rowind = rowind;
+//    Astore->colptr = colptr;
+//    
+//}
+//void create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
+//    DNformat    *Xstore;
+//    X->Stype = stype;
+//    X->Dtype = dtype;
+//    X->Mtype = mtype;
+//    X->nrow = m;
+//    X->ncol = n;
+//    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
+//    ((unsigned long *) buf)[0] = sizeof(NCformat);
+//    buf=buf+sizeof(double);
+//    X->Store = (void *) buf;
+//    Xstore = (DNformat *) X->Store;
+//    Xstore->lda = ldx;
+//    Xstore->nzval = (double *) x;
+//    
+//}
+//
+//
+//
+//
+//
+//int *intMalloc(int n) {
+//    int *buf;
+//    buf = (int *) superlu_malloc((size_t) n * sizeof(int));
+//    if ( !buf ) {
+//        strerror(1);
+//    }
+//    return (buf);
+//}
+//
+//double *doubleMalloc(int n)
+//{
+//    double *buf;
+//    buf = (double *) superlu_malloc((size_t)n * sizeof(double));
+//    if ( !buf ) {
+//        strerror(1);
+//    }
+//    return (buf);
+//}
+//
 
 
 
@@ -313,43 +311,66 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 		}
 	}
 
-	SuperMatrix    A, L, U;
-	SuperMatrix    B;
-	NCformat       *Ustore;
-	double         *a,*rhs,*u;
+    
+    //sp_mat A, L, U;
+    //mat B;
+    
+	//SuperMatrix    A, L, U;
+	//SuperMatrix    B;
+	//NCformat       *Ustore;
+    double         *a,*rhs; //,*u;
 	int            *asub, *xa;
 	int            *perm_r;  //row permutations from partial pivoting
 	int            *perm_c;  //column permutation vector
 	int            info, nrhs,row_inc;
 	int            m, n, nnz,index;
-	superlu_options_t options;
-	SuperLUStat_t stat;
-	set_default_options(&options);
+	//superlu_options_t options;
+	//SuperLUStat_t stat;
+	//set_default_options(&options);
 
+  
+
+    
 	m = n =  N;
 	nnz = N * 5;
+    
+    uvec rowindA(nnz);
+    
+    uvec colptrA(n+1);
+    
+    vec valuesA(nnz);
+    
+    
 
-	if ( !(a = doubleMalloc(nnz)) ) strerror(1);
-	if ( !(asub = intMalloc(nnz)) ) strerror(1);
-	if ( !(xa = intMalloc(n+1)) ) strerror(1);;
+	//if ( !(a = (double *)malloc(nnz * sizeof(double))) ) strerror(1);
+	//if ( !(asub = (int *)malloc(nnz * sizeof(int))) ) strerror(1);
+	//if ( !(xa = (int *)malloc((n+1) * sizeof(int))) ) strerror(1);
 
 
 	nrhs = 1;
 	index = 0;
-	if ( !(rhs = doubleMalloc(m * nrhs)) ) strerror(1);;
+	if ( !(rhs = (double *) malloc(m * nrhs * sizeof(double))) ) strerror(1);;
 	row_inc = 0;
 	for (int y = 1; y < src->height-1; y++) {
 		for (int x = 1; x < src->width-1; x++) {
 			if (mask->imageData[x+y*src->width]) {  //Variable
-				unsigned int id = x+y*src->width;
-				xa[row_inc] = index;
+                
+                unsigned int id = x+y*src->width;
+				
+                if (row_inc >= n+1) printf("fcked");
+                
+                colptrA(row_inc) = index;
 
 				 //Right hand side is initialized to zero
 				CvScalar bb=cvScalarAll(0);
 
 				if (mask->imageData[(x)+(y-1)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id-src->width];
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    valuesA(index) = 1.0;
+					rowindA(index) = masked[id-src->width];
 					index++;
 				} else {
 					// Known pixel, update right hand side
@@ -358,27 +379,42 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 
 
 				if (mask->imageData[(x-1)+(y)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id-1];
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    valuesA(index) = 1.0;
+					rowindA(index) = masked[id-1];
 					index++;
 				} else {
 					bb=sub(bb,cvGet2D(src,y,x-1));
 				}
-				a[index] = -4.0;
-				asub[index] = masked[id];
+                
+                if (index >= nnz) {
+                    printf("a111111");
+                }
+				valuesA(index) = -4.0;
+				rowindA(index) = masked[id];
 				index++;
 
 				if (mask->imageData[(x+1)+(y)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id+1];
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    valuesA(index) = 1.0;
+					rowindA(index) = masked[id+1];
 					index++;
 				} else {
 					bb=sub(bb,cvGet2D(src,y,x+1));
 				}
 
 				if (mask->imageData[(x)+(y+1)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id+src->width];
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    valuesA(index) = 1.0;
+					rowindA(index) = masked[id+src->width];
 					index++;
 				} else {
 					bb=sub(bb,cvGet2D(src,y+1,x));
@@ -395,26 +431,44 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 		}
 	}
 	assert(row_inc == N);
-	xa[n] = index;
+	colptrA(n) = index;
 
+    printf("ascas");
+
+    //uvec rowindA = uvec(*asub, 1);
+    
+    printf("1");
+
+    //uvec colptrA = uvec(*xa, n + 1);
+    printf("2");
+
+    //vec valuesA = vec(*a, nnz);
 	 //Create matrix A in the format expected by SuperLU.
-	create_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
+	//create_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
 	 //Create right-hand side matrix B.
-	create_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
+	//create_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
 	 //Set the default input options.
-	set_default_options(&options);
-	options.ColPerm = NATURAL;
-	options.Trans = TRANS;
-	options.ColPerm = COLAMD;
-	if ( !(perm_r = intMalloc(m)) ) strerror(1);
-	if ( !(perm_c = intMalloc(n)) ) strerror(1);
+    printf("ascas");
+    sp_mat A = sp_mat(rowindA, colptrA, valuesA, m, n);
+    mat B = mat(rhs, m, nrhs);
+	//set_default_options(&options);
+	//options.ColPerm = NATURAL;
+	//options.Trans = TRANS;
+	//options.ColPerm = COLAMD;
+	if ( !(perm_r = (int *)malloc(m * sizeof(int))) ) strerror(1);
+	if ( !(perm_c = (int *)malloc(n * sizeof(int))) ) strerror(1);
 
 	 //Initialize the statistics variables.
-	StatInit(&stat);
+	//StatInit(&stat);
 	 //Solve the linear system.
-    dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
-	Ustore = (NCformat *)B.Store;
-	u = (double*) Ustore->nzval;
+    //dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
+    
+    printf("aaaaaaa");
+    mat X = spsolve(A, B, "lapack");
+    
+    vec u = vectorise(X);
+    //Ustore = (NCformat *)B.Store;
+	//u = (double*) Ustore->nzval;
 	IplImage* result=cvCreateImage(cvGetSize(src),32,src->nChannels);
 	cvCopy(src,result);
 	for (int y = 1; y < src->height; y++) {
@@ -424,20 +478,20 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 				unsigned int ii = masked[id];
 				CvScalar p;
 				for (int chan=0; chan<src->nChannels; chan++) {
-					p.val[chan]=u[ii+N*chan];
+					p.val[chan]=u(ii+N*chan);
 				}
 				cvSet2D(result,y,x,p);
 			}
 		}
 	}
 	// Clean Up Solver
-	superlu_free (rhs);
-	superlu_free(perm_r);
-	superlu_free (perm_c);
-	Destroy_CompCol_Matrix(&A);
-	Destroy_SuperMatrix_Store(&B);
-	Destroy_SuperNode_Matrix(&L);
-	Destroy_CompCol_Matrix(&U);
+	//superlu_free (rhs);
+	//superlu_free(perm_r);
+	//superlu_free (perm_c);
+	//Destroy_CompCol_Matrix(&A);
+	//Destroy_SuperMatrix_Store(&B);
+	//Destroy_SuperNode_Matrix(&L);
+	//Destroy_CompCol_Matrix(&U);
 	return result;
 }
 
