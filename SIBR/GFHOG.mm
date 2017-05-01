@@ -434,10 +434,10 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 	superlu_free (rhs);
 	superlu_free(perm_r);
 	superlu_free (perm_c);
-	Destroy_CompCol_Matrix(&A);
-	Destroy_SuperMatrix_Store(&B);
-	Destroy_SuperNode_Matrix(&L);
-	Destroy_CompCol_Matrix(&U);
+	//Destroy_CompCol_Matrix(&A);
+	//Destroy_SuperMatrix_Store(&B);
+	//Destroy_SuperNode_Matrix(&L);
+	//Destroy_CompCol_Matrix(&U);
 	return result;
 }
 

@@ -46,7 +46,7 @@ using namespace cv;
     
     // Do any additional setup after loading the view, typically from a nib.
     // 3.Read in the image (of the famous Lena)
-    UIImage *image = [UIImage imageNamed:@"1.png"];
+    UIImage *image = [UIImage imageNamed:@"2.png"];
     
     // 1. Setup the your imageView_ view, so it takes up the entire App screen......
     imageView_ = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - image.size.width/2, self.view.frame.size.height/2 - image.size.height/2, image.size.width, image.size.height)];
