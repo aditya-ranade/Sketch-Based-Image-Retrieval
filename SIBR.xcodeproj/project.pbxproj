@@ -10,6 +10,7 @@
 		A334AE881EB5DB7500A13096 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A334AE871EB5DB7500A13096 /* libjpeg.a */; };
 		A334AE8A1EB5DC0400A13096 /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = A334AE891EB5DC0400A13096 /* 1.png */; };
 		A334AE8C1EB607B000A13096 /* 2.png in Resources */ = {isa = PBXBuildFile; fileRef = A334AE8B1EB607B000A13096 /* 2.png */; };
+		A334AE9D1EB7C58500A13096 /* Eigen in Resources */ = {isa = PBXBuildFile; fileRef = A334AE9C1EB7C58500A13096 /* Eigen */; };
 		A357CEE71EB1A74700CB7CCE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A357CEE61EB1A74700CB7CCE /* main.m */; };
 		A357CEEA1EB1A74700CB7CCE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A357CEE91EB1A74700CB7CCE /* AppDelegate.m */; };
 		A357CEED1EB1A74700CB7CCE /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A357CEEC1EB1A74700CB7CCE /* ViewController.mm */; };
@@ -75,6 +76,7 @@
 		A334AE871EB5DB7500A13096 /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjpeg.a; sourceTree = "<group>"; };
 		A334AE891EB5DC0400A13096 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
 		A334AE8B1EB607B000A13096 /* 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 2.png; sourceTree = "<group>"; };
+		A334AE9C1EB7C58500A13096 /* Eigen */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Eigen; sourceTree = "<group>"; };
 		A357CEE21EB1A74700CB7CCE /* SIBR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SIBR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A357CEE61EB1A74700CB7CCE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A357CEE81EB1A74700CB7CCE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 			isa = PBXGroup;
 			children = (
 				A357CEE81EB1A74700CB7CCE /* AppDelegate.h */,
+				A334AE9C1EB7C58500A13096 /* Eigen */,
 				A357CF901EB539BA00CB7CCE /* armadillo */,
 				A357CF4A1EB1AC3700CB7CCE /* opencv */,
 				A357CEE91EB1A74700CB7CCE /* AppDelegate.m */,
@@ -393,6 +396,7 @@
 				A334AE8C1EB607B000A13096 /* 2.png in Resources */,
 				A357CEF21EB1A74700CB7CCE /* Assets.xcassets in Resources */,
 				A334AE8A1EB5DC0400A13096 /* 1.png in Resources */,
+				A334AE9D1EB7C58500A13096 /* Eigen in Resources */,
 				A357CF911EB539BA00CB7CCE /* armadillo in Resources */,
 				A357CEF01EB1A74700CB7CCE /* Main.storyboard in Resources */,
 			);
@@ -600,15 +604,24 @@
 					"$(PROJECT_DIR)/SIBR",
 					"$(PROJECT_DIR)",
 				);
-				HEADER_SEARCH_PATHS = "/Users/aranade/Downloads/armadillo-7.800.2/include/";
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/SIBR",
+					/usr/local/Cellar/eigen/3.3.3/include/eigen3,
+					"/Users/aranade/Downloads/armadillo-7.800.2/include/",
+				);
 				INFOPLIST_FILE = SIBR/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					"$(PROJECT_DIR)/SIBR",
+					/usr/local/Cellar/eigen/3.3.3/include/eigen3,
 				);
-				OTHER_LDFLAGS = "-v";
+				OTHER_LDFLAGS = (
+					"-v",
+					"-I",
+					/usr/local/Cellar/eigen/3.3.3/include/eigen3,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = A.SIBR;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos10.3;
@@ -627,15 +640,24 @@
 					"$(PROJECT_DIR)/SIBR",
 					"$(PROJECT_DIR)",
 				);
-				HEADER_SEARCH_PATHS = "/Users/aranade/Downloads/armadillo-7.800.2/include/";
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/SIBR",
+					/usr/local/Cellar/eigen/3.3.3/include/eigen3,
+					"/Users/aranade/Downloads/armadillo-7.800.2/include/",
+				);
 				INFOPLIST_FILE = SIBR/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					"$(PROJECT_DIR)/SIBR",
+					/usr/local/Cellar/eigen/3.3.3/include/eigen3,
 				);
-				OTHER_LDFLAGS = "-v";
+				OTHER_LDFLAGS = (
+					"-v",
+					"-I",
+					/usr/local/Cellar/eigen/3.3.3/include/eigen3,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = A.SIBR;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos10.3;

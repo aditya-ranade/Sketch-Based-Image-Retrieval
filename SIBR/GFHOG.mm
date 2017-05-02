@@ -11,9 +11,14 @@
 
 #include "armadillo"
 
+#include "Eigen/Dense"
+#include "Eigen/SparseCore"
+
 
 
 using namespace arma;
+
+using namespace Eigen;
 
 //using namespace superlu;
 
@@ -323,7 +328,7 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 	int            *perm_r;  //row permutations from partial pivoting
 	int            *perm_c;  //column permutation vector
 	int            info, nrhs,row_inc;
-	int            m, n, nnz,index;
+	int      m, n, nnz,index;
 	//superlu_options_t options;
 	//SuperLUStat_t stat;
 	//set_default_options(&options);
@@ -341,6 +346,20 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
     vec valuesA(nnz);
     fprintf(stderr, "in");
 
+    
+    MatrixXi rowind_E(nnz, 1);
+    MatrixXi colptr_E(n+1, 1);
+    MatrixXd values_E(nnz, 1);
+    
+   
+    
+    
+    
+    
+    
+    
+    
+    
     
 
 	//if ( !(a = (double *)malloc(nnz * sizeof(double))) ) strerror(1);
@@ -362,6 +381,7 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 				
                 if (row_inc >= n+1) printf("fcked");
                 
+                colptr_E(row_inc, 0) = index;
                 colptrA(row_inc) = index;
 
 				 //Right hand side is initialized to zero
@@ -371,6 +391,9 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
                     if (index >= nnz) {
                         printf("a111111");
                     }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id-src->width];
                     
                     valuesA(index) = 1.0;
 					rowindA(index) = masked[id-src->width];
@@ -386,6 +409,9 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
                         printf("a111111");
                     }
                     
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id-1];
+
                     valuesA(index) = 1.0;
 					rowindA(index) = masked[id-1];
 					index++;
@@ -396,6 +422,10 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
                 if (index >= nnz) {
                     printf("a111111");
                 }
+                
+                values_E(index, 0) = -4.0;
+                rowind_E(index, 0) = masked[id];
+
 				valuesA(index) = -4.0;
 				rowindA(index) = masked[id];
 				index++;
@@ -404,6 +434,9 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
                     if (index >= nnz) {
                         printf("a111111");
                     }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id]+1;
                     
                     valuesA(index) = 1.0;
 					rowindA(index) = masked[id+1];
@@ -416,6 +449,10 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
                     if (index >= nnz) {
                         printf("a111111");
                     }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id+src->width];
+                    
                     valuesA(index) = 1.0;
 					rowindA(index) = masked[id+src->width];
 					index++;
@@ -459,7 +496,51 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
     printf("ascas");
     rowindA.transform( [](double val) { return (val > 8640 ? 0.0 : val); } );
     valuesA.transform( [](double val) { return (std::isnan(val) ? 0.0 : val); } );
+    
+
+    SparseMatrix<double> A_eigen(m, n);
+    
     sp_mat A = sp_mat(rowindA, colptrA, valuesA, m, n);
+    
+    A.print();
+    
+
+    
+    typedef Triplet<double> T;
+    std::vector<T> tripletList;
+
+    
+    for (int k = 0; k < 1; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < nnz; j++) {
+                
+                tripletList.push_back(T(rowind_E(j), colptr_E(i), values_E(j)));
+            }
+        }
+        A_eigen.setFromTriplets(tripletList.begin(), tripletList.end());
+        
+    }
+    
+    
+    //if (A(96, 0) != A_eigen.coeffRef(96, 0)) {
+      //  printf("a");
+      //  strerror(1);
+    //}
+    
+   
+    
+    
+    
+   
+    
+    
+
+    
+    printf("reached here");
+    
+    
+    
+    
     //A.transform( [](double val) { return (std::isnan(val) ? 0.0 : val); } );
     //mat A_ = mat(A);
     //cout << A_.size() << endl;
@@ -477,26 +558,26 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
     //dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
     
     printf("aaaaaaa");
-    mat X = spsolve(A, B, "lapack");
+    //mat X = spsolve(A, B, "lapack");
     
-    vec u = vectorise(X);
+    //vec u = vectorise(X);
     //Ustore = (NCformat *)B.Store;
 	//u = (double*) Ustore->nzval;
 	IplImage* result=cvCreateImage(cvGetSize(src),32,src->nChannels);
 	cvCopy(src,result);
-	for (int y = 1; y < src->height; y++) {
-		for (int x = 1; x < src->width; x++) {
-			if (mask->imageData[(x)+(y)*src->width]) {
-				unsigned int id = y*src->width+x;
-				unsigned int ii = masked[id];
-				CvScalar p;
-				for (int chan=0; chan<src->nChannels; chan++) {
-					p.val[chan]=u(ii+N*chan);
-				}
-				cvSet2D(result,y,x,p);
-			}
-		}
-	}
+//	for (int y = 1; y < src->height; y++) {
+//		for (int x = 1; x < src->width; x++) {
+//			if (mask->imageData[(x)+(y)*src->width]) {
+//				unsigned int id = y*src->width+x;
+//				unsigned int ii = masked[id];
+//				CvScalar p;
+//				for (int chan=0; chan<src->nChannels; chan++) {
+//					p.val[chan]=u(ii+N*chan);
+//				}
+//				cvSet2D(result,y,x,p);
+//			}
+//		}
+//	}
 	// Clean Up Solver
 	//superlu_free (rhs);
 	//superlu_free(perm_r);
