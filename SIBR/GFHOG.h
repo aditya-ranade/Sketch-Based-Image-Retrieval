@@ -20,12 +20,15 @@
 //			See: http://stuartjames.info/license.aspx
 ////////////////////////////////////////////////////////////////////////////////
 
-
+#include <stdlib.h>
 #include <vector>
 #include "opencv/cxcore.h"
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
-
+#include "rapidjson/document.h"
+#include <map>
+#include <iostream>
+//#include "armadillo"
 //#include "SuperLU_5.2.1/SRC/slu_ddefs.h"
 
 
@@ -47,8 +50,7 @@ enum GFHOGType{
 	Sketch
 };
 
-
-
+using namespace rapidjson;
 
 class GFHOG : public std::vector<std::vector<double> >
 {
@@ -60,9 +62,14 @@ public:
 	void ComputeSketch(IplImage* src,IplImage* mask = NULL);
 	void ComputeEdge(IplImage* edge,IplImage* mask = NULL);
 	void ComputeGradient(IplImage* Edge8bit,IplImage* mask);
+    void writeVector(std::vector<double>& v, const char *fname, int i);
+    void save2file(const char *fname);
+    int get_best_cluster(std::vector<double> &descript, rapidjson::Value &centers, int k);
+     std::map<std::string, double> compute_search(Value &freq_hist, Value &centers, int k);
 
 	IplImage* Gradient() { return _gradient; };
 	static IplImage* ResizeToFaster(IplImage* image,int maxdim);
+    
 private:
 	IplImage* _gradient;
 	void gradientField(IplImage* inpmask32,IplImage* filtermask32);

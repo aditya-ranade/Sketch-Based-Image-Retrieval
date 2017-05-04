@@ -6,18 +6,28 @@
 #include <map>
 #include "HogDetect.h"
 #include <cstring>
+#include <stdlib.h>
 
 
 #define ARMA_USE_SUPERLU 1
 
 
 #include "armadillo"
+#import <UIKit/UIKit.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <dirent.h>
+#include "rapidjson/document.h"
+#include "rapidjson/filereadstream.h"
 
 
 
 using namespace arma;
 
 using namespace superlu;
+
+using namespace rapidjson;
 
 
 
@@ -135,7 +145,7 @@ void GFHOG::ComputeSketch(IplImage* src,IplImage* mask){
 	if (src->nChannels > 1){
 		IplImage* gimg=cvCreateImage(cvGetSize(runImg),8,1);
 		cvCvtColor(runImg,gimg,CV_BGR2GRAY);
-		cvReleaseImage(&runImg);
+		//cvReleaseImage(&runImg);
 		runImg = gimg;
 	} 
 	ComputeGradient(runImg,mask);
@@ -412,6 +422,7 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 	 //Initialize the statistics variables.
 	StatInit(&stat);
 	 //Solve the linear system.
+    
     dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
 	Ustore = (NCformat *)B.Store;
 	u = (double*) Ustore->nzval;
@@ -440,6 +451,75 @@ IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
 	//Destroy_CompCol_Matrix(&U);
 	return result;
 }
+
+arma::mat B;
+
+void GFHOG::writeVector(std::vector<double>& v, const char *fname, int i){
+    
+}
+
+void GFHOG::save2file(const char *fname) {
+    B.save(fname, arma::raw_ascii);
+}
+
+
+int GFHOG::get_best_cluster(std::vector<double> &descript, Value &centers, int k) {
+    double min_dist = -1;
+    int best_label = -1;
+    for (SizeType i = 0; i < k; i++) {
+        const Value &center = centers[i];
+        vec A(center.Size());
+        for (int j = 0; j < 81; j++) {
+            A(j) = center[j].GetDouble();
+        }
+        vec d(descript);
+        
+        
+        double dist = norm(A - d, 2);
+        if (min_dist == -1 || dist < min_dist) {
+            min_dist = dist;
+            best_label = i;
+        }
+    }
+    return best_label;
+}
+
+ std::map<std::string, double> GFHOG::compute_search(Value &freq_hist, Value &centers, int k) {
+    
+     std::map<std::string, double> rank;
+     
+    vec img_hist = zeros(k);
+    
+    for (GFHOG::iterator desc = this->begin(); desc < this->end(); desc++) {
+        int label = get_best_cluster(*desc, centers, k);
+        img_hist(label) += 1;
+    }
+    cout << img_hist.size() << endl;
+    double normalize = norm(img_hist);
+    for (int j = 0; j < img_hist.size(); j++) {
+        img_hist(j) /= normalize;
+    }
+    
+    
+    
+        
+    for (Value::ConstMemberIterator iter = freq_hist.MemberBegin(); iter != freq_hist.MemberEnd(); ++iter) {
+        std::string name = iter->name.GetString();
+        vec desc_freq(500);
+        double dist = 0.0;
+        for (int k = 0; k < 500; k++) {
+            desc_freq(k) = iter->value[k].GetDouble();
+            
+        }
+        dist = norm(desc_freq - img_hist, 2);
+        rank.insert(std::make_pair(name, dist));
+        cout << rank[name] << endl;
+    }
+    
+     return rank;
+    
+}
+
 
 
 inline CvScalar GFHOG::sub(CvScalar a, CvScalar b) {

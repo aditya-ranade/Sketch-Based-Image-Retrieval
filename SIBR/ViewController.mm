@@ -21,6 +21,14 @@
 #include "GFHOG.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <dirent.h>
+#include "rapidjson/document.h"
+#include "rapidjson/filereadstream.h"
+
+
+
+
 
 #endif
 
@@ -30,7 +38,14 @@
 #include <iostream>
 using namespace std;
 using namespace cv;
+using namespace rapidjson;
 
+
+typedef struct {
+    GFHOG descriptor;
+    string buf;
+    
+}return_value;
 
 
 @interface ViewController () {
@@ -43,19 +58,56 @@ using namespace cv;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    string buf = "";
     
-    // Do any additional setup after loading the view, typically from a nib.
-    // 3.Read in the image (of the famous Lena)
-    UIImage *image = [UIImage imageNamed:@"2.png"];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"bruv.txt"];
     
-    // 1. Setup the your imageView_ view, so it takes up the entire App screen......
+    const char *fname = [filePath UTF8String];
+    
+    
+    string path = "/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/images2/";
+    
+    
+    
+    //    DIR *dir;
+    //    struct dirent *ent;
+    //    if ((dir = opendir (path.c_str())) != NULL) {
+    //        /* print all the files and directories within directory */
+    //
+    //        while ((ent = readdir (dir)) != NULL) {
+    //            string new_path = path + ent->d_name;
+    //            new_path += "/";
+    //            DIR *sub_dir;
+    //            struct dirent *sub_ent;
+    //            if ((sub_dir = opendir (new_path.c_str())) != NULL) {
+    //                while ((sub_ent = readdir (sub_dir)) != NULL) {
+    //                    string name = new_path + sub_ent->d_name;
+    //                    string check = sub_ent->d_name;
+    //                    if (check.size() >= 5) {
+    //                        string file_type = check.substr(check.size() - 4, check.size());
+    //                        if (file_type == ".png") {
+    //
+    //                            string image_folder = ent->d_name;
+    //
+    //                            if (image_folder != "..") {
+    //
+    //                                string img_path = "images2/" + image_folder + "/" + check;
+    //
+    //                                NSString *image_path = [NSString stringWithUTF8String:img_path.c_str()];
+    
+    UIImage *image = [UIImage imageNamed:@"heart.jpg"];
+    
+    
     imageView_ = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - image.size.width/2, self.view.frame.size.height/2 - image.size.height/2, image.size.width, image.size.height)];
     
     // 2. Important: add OpenCV_View as a subview
-    [self.view addSubview:imageView_];
+    //[self.view addSubview:imageView_];
     
-    if(image != nil) imageView_.image = image; // Display the image if it is there....
-    else cout << "Cannot read in the file" << endl;
+    //if(image != nil) imageView_.image = image; // Display the image if it is there....
+    //else cout << "Cannot read in the file" << endl;
     
     // 4. Next convert to a cv::Mat
     Mat cvImage; UIImageToMat(image, cvImage);
@@ -64,15 +116,18 @@ using namespace cv;
     Mat gray;
     cvtColor(cvImage, gray, CV_RGB2GRAY);
     
+    
+    
+    IplImage *img = CreateIplImageFromUIImage(image);
+    
+    
+    int type = 0;
+    int setSize = 100;
+    
     std::string image_path;
     std::string mask_path;
     std::string grad_path;
     std::string out_path;
-    int type = 0;
-    int setSize = 100;
-    
-    image_path = "1.png";
-    IplImage *img = CreateIplImageFromUIImage(image);
     
     if (!img){
         std::cout <<"Error Loading Image" << std::endl;
@@ -117,63 +172,374 @@ using namespace cv;
     
     GFHOG descriptor;
     
-    cout << "adasx" << endl;
+    //cout << "adasx" << endl;
     
     descriptor.Compute(img,(GFHOGType)type,mask);
+    std::stringstream ss;
     
-    printf("ad");
     
-    out_path = "~/Desktop/output.txt";
-    int sum1 = 0;
-    GFHOG::iterator it = descriptor.begin();
-    printf("\n");
-    for ( ; it < descriptor.end() ; it++){
-        sum1 += 1;
-        float sum = 0;
-        std::vector<double>::iterator it1 = it->begin();
-        //cout << *it1;
-        it1++;
-        for (; it1 < it->end(); it1++) {
-            cout << ',' << *it1;
-            sum += *it1;
-        }
-        //printf("\n\n%f\n\n", sum);
+    
+    GFHOG::iterator it1 = descriptor.begin();
+    for ( ; it1 < descriptor.end() ; it1++){
+        //arma::vec a(*it1);
+        //a.save(fname, arma::raw_ascii);
+        writeVector(*it1,&ss);
+        ss << "," << "bicycle.png" << std::endl;
     }
+    
+    
+    
+    string result = ss.str();
+    
+    buf += result;
+    //                            }
+    //
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    
+    NSString* data = [NSString stringWithUTF8String:buf.c_str()];
+    
+    NSError *error;
+    BOOL status = [data writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    //closedir (dir);
+    //    } else {
+    //        /* could not open directory */
+    //        perror ("file not found");
+    //
+    
+    
+    Document freq_hist = read_files("/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/freq_hist_normalized.json");
+    Document centers = read_files("/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/centers-2.json");
+    
+    Value &new_center = centers;
+    Value &new_freq_hist = freq_hist;
+    
+    
+    
+    
+    
+    GFHOG search;
+    
+    
+    std::map<std::string, double> rank;
+    rank = descriptor.compute_search(new_freq_hist, new_center, 500);
+    
+    cout << rank.size() << endl;
+    
+    
+
+    
+    std::vector<std::pair<double, string>> mapVector;
+    std::map<string, double> map1;
+    // Insert entries
+    for (auto iterator = rank.begin(); iterator != rank.end(); ++iterator) {
+        string temp = iterator->first;
+        
+        std::map<string, double> map1;
+        
+        mapVector.push_back(make_pair(iterator->second, iterator->first));
+    }
+    
+    sort(mapVector.begin(), mapVector.end());
+    
+    for (int i=0; i<mapVector.size(); i++) cout << mapVector[i].second << endl;
+
+}
+
+    //cout << rank[0] << endl;
+    
+//    for (map <string, double>::iterator it = rank.begin(); it != rank.end(); it++) {
+//        cout << it->first << "," << it->second << endl;
+
+
+    
+
+
+    
+    
+    // Do any additional setup after loading the view, typically from a nib.
+    // 3.Read in the image (of the famous Lena)
+//    UIImage *image = [UIImage imageNamed:@"lena.png"];
+//
+//    // 1. Setup the your imageView_ view, so it takes up the entire App screen......
+//    imageView_ = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - image.size.width/2, self.view.frame.size.height/2 - image.size.height/2, image.size.width, image.size.height)];
+//
+//    // 2. Important: add OpenCV_View as a subview
+//    [self.view addSubview:imageView_];
+//    
+//    if(image != nil) imageView_.image = image; // Display the image if it is there....
+//    else cout << "Cannot read in the file" << endl;
+//    
+//    // 4. Next convert to a cv::Mat
+//    Mat cvImage; UIImageToMat(image, cvImage);
+//    
+//    // 5. Now apply some OpenCV operations
+//    Mat gray;
+//    cvtColor(cvImage, gray, CV_RGB2GRAY);
+//    
+//    std::string image_path;
+//    std::string mask_path;
+//    std::string grad_path;
+//    std::string out_path;
+//    int type = 0;
+//    int setSize = 100;
+//    
+//    
+//    IplImage *img = CreateIplImageFromUIImage(image);
+//    
+//    if (!img){
+//        std::cout <<"Error Loading Image" << std::endl;
+//    }
+//    
+//    if (std::max(img->width,img->height) > setSize){
+//        // Change in size
+//        CvSize s;
+//        if (img->width > setSize){
+//            float r = (float)setSize / img->width ;
+//            s.width = setSize;
+//            s.height = (float)(img->height) * r;
+//        }else{
+//            float r = (float)setSize / img->height ;
+//            s.height = setSize;
+//            s.width = (float)(img->width) * r;
+//        }
+//        IplImage *resize = cvCreateImage(s,8,1);
+//        
+//        cout << typeid(resize).name() << endl;
+//        cout << typeid(img).name() << endl;
+//        
+//         size(img,resize);
+//        cvReleaseImage(&img);
+//        img = resize;
+//    }
+//    
+//    IplImage* mask = NULL;
+//    if (mask_path.length()){
+//        mask = cvLoadImage(image_path.c_str(),0);
+//        if (!mask){
+//            std::cout <<"Error Loading Mask" << std::endl;
+//        }
+//        cvZero(mask);
+//        cvCopyMakeBorder(mask,mask,cvPoint(setSize/100,setSize/100),IPL_BORDER_CONSTANT);
+//    }else{
+//        mask = cvCreateImage(cvGetSize(img),8,1);
+//        cvZero(mask);
+//        cvNot(mask,mask);
+//        //cvCopyMakeBorder(mask,mask,cvPoint(setSize/10,setSize/10),IPL_BORDER_CONSTANT);
+//    }
+//    
+//    GFHOG descriptor;
+//    
+//    cout << "adasx" << endl;
+//    
+//    descriptor.Compute(img,(GFHOGType)type,mask);
+//    
+//    printf("ad");
+//    
+//    out_path = "descrip.txt";
+//    int sum1 = 0;
+//    GFHOG::iterator it = descriptor.begin();
+//    printf("\n");
+//    for ( ; it < descriptor.end() ; it++){
+//        sum1 += 1;
+//        float sum = 0;
+//        std::vector<double>::iterator it1 = it->begin();
+//        //cout << *it1;
+//        it1++;
+//        for (; it1 < it->end(); it1++) {
+//           // cout << ',' << *it1;
+//            sum += *it1;
+//        }
+//        //printf("\n\n%f\n\n", sum);
+//    }
+//    
+//    std::stringstream ss;
+    
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//    NSString *documentsDirectory = [paths objectAtIndex:0];
+//    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"file.txt"];
+//    
+//    const char *fname = [filePath UTF8String];
+//    
+//    
+//
+//    
+//    int row_no = 0;
+//    
+//    GFHOG::iterator it1 = descriptor.begin();
+//    for ( ; it1 < descriptor.end() ; it1++){
+//                //arma::vec a(*it1);
+//        //a.save(fname, arma::raw_ascii);
+//        writeVector(*it1,&ss);
+//        ss << std::endl;
+//    }
+//    string result = ss.str();
+//    
+//    NSString* data = [NSString stringWithUTF8String:result.c_str()];
+//    
+//    NSError *error;
+//    BOOL status = [data writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+//
+//    
+//    
+//    
+    
+    //cout << result << endl;
+    
+    
+    
+    
+//    
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains
+//    (NSDocumentDirectory, NSUserDomainMask, YES);
+//    NSString *documentsDirectory = [paths objectAtIndex:0];
+//    NSString *fileName = [NSString stringWithFormat:@"%@/FFT_Comparison.txt",
+//                          documentsDirectory];
+//    const char *fname = [fileName UTF8String];
+//
+//    for ( ; it < descriptor.end() ; it++){
+//        descriptor.writeVector(*it, fname);
+//    }
+//    
+
+    
     //printf("\n%d", sum1);
-    if (out_path.length()){
-        //descriptor.saveToFile(out_path.c_str());
-        std::ofstream str;
-        str.open(out_path.c_str());
-        if (str.is_open()){
-            GFHOG::iterator it = descriptor.begin();
-            for ( ; it < descriptor.end() ; it++){
-                writeVector(*it,str);
-                str << std::endl;
-            }
-        }else{
-            printf("\n");
-            std::cout << "Failed to Save Descriptor" << std::endl;
-        }
+//    if (out_path.length()){
+//        //descriptor.saveToFile(out_path.c_str());
+//        std::ofstream str;
+//        str.open(out_path.c_str());
+//        if (str.is_open()){
+//            GFHOG::iterator it = descriptor.begin();
+//            for ( ; it < descriptor.end() ; it++){
+//                writeVector(*it,str);
+//                str << std::endl;
+//            }
+//        }else{
+//            printf("\n");
+//            std::cout << "Failed to Save Descriptor" << std::endl;
+//        }
+//    }
+    
+//    if (grad_path.length()){
+//        IplImage* g = descriptor.Gradient();
+//        IplImage* g8bit = cvCreateImage(cvGetSize(g),8,1);
+//        cvConvertScale(g,g8bit,255);
+//        cvSaveImage(grad_path.c_str(),g8bit);
+//    }
+//    
+    
+
+
+return_value *create_descriptors(IplImage *img, string image_name) {
+    
+    int type = 0;
+    int setSize = 100;
+    
+    std::string image_path;
+    std::string mask_path;
+    std::string grad_path;
+    std::string out_path;
+    
+    if (!img){
+        std::cout <<"Error Loading Image" << std::endl;
     }
     
-    if (grad_path.length()){
-        IplImage* g = descriptor.Gradient();
-        IplImage* g8bit = cvCreateImage(cvGetSize(g),8,1);
-        cvConvertScale(g,g8bit,255);
-        cvSaveImage(grad_path.c_str(),g8bit);
+    if (std::max(img->width,img->height) > setSize){
+        // Change in size
+        CvSize s;
+        if (img->width > setSize){
+            float r = (float)setSize / img->width ;
+            s.width = setSize;
+            s.height = (float)(img->height) * r;
+        }else{
+            float r = (float)setSize / img->height ;
+            s.height = setSize;
+            s.width = (float)(img->width) * r;
+        }
+        IplImage *resize = cvCreateImage(s,8,1);
+        
+        cout << typeid(resize).name() << endl;
+        cout << typeid(img).name() << endl;
+        
+        cvResize(img,resize);
+        cvReleaseImage(&img);
+        img = resize;
     }
+    
+    IplImage* mask = NULL;
+    if (mask_path.length()){
+        mask = cvLoadImage(image_path.c_str(),0);
+        if (!mask){
+            std::cout <<"Error Loading Mask" << std::endl;
+        }
+        cvZero(mask);
+        cvCopyMakeBorder(mask,mask,cvPoint(setSize/100,setSize/100),IPL_BORDER_CONSTANT);
+    }else{
+        mask = cvCreateImage(cvGetSize(img),8,1);
+        cvZero(mask);
+        cvNot(mask,mask);
+        //cvCopyMakeBorder(mask,mask,cvPoint(setSize/10,setSize/10),IPL_BORDER_CONSTANT);
+    }
+    
+    GFHOG descriptor;
+    
+    //cout << "adasx" << endl;
+    
+    descriptor.Compute(img,(GFHOGType)type,mask);
+    std::stringstream ss;
+    
+    
+ 
+    GFHOG::iterator it1 = descriptor.begin();
+    for ( ; it1 < descriptor.end() ; it1++){
+        //arma::vec a(*it1);
+        //a.save(fname, arma::raw_ascii);
+        writeVector(*it1,&ss);
+        ss << "," << "bicycle.png" << std::endl;
+    }
+    
+    
+    
+    string result = ss.str();
+    
+    
+    return_value *A = (return_value *)malloc(sizeof(return_value));
+    A->descriptor = descriptor;
+    A->buf = result;
+    return A;
     
     
 }
 
-void writeVector(std::vector<double>& v, std::ofstream &str){
+
+void writeVector(std::vector<double>& v, stringstream *ss){
     std::vector<double>::iterator it = v.begin();
-    str << *it;
+    *ss << *it;
     it++;
     for ( ; it < v.end() ; it++){
-        str  << ',' << *it;
+        *ss  << ',' << *it;
+        
+        
     }
 }
+
+
+
+Document read_files(string file_name) {
+    FILE* pFile = fopen(file_name.c_str(), "r");
+    if (!pFile) cout << "fuck" << endl;
+    char buffer[1700000];
+    FileReadStream is(pFile, buffer, sizeof(buffer));
+    Document document;
+    document.ParseStream<0, UTF8<>, FileReadStream>(is);
+    return document;
+    
+}
+
+
 
 IplImage *CreateIplImageFromUIImage(UIImage *image) {
     // Getting CGImage from UIImage
@@ -202,11 +568,12 @@ IplImage *CreateIplImageFromUIImage(UIImage *image) {
     // Creating result IplImage
     IplImage *ret = cvCreateImage(cvGetSize(iplimage), IPL_DEPTH_8U, 1);
     cvCvtColor(iplimage, ret, CV_RGBA2GRAY);
-    cvReleaseImage(&iplimage);
+    //cvReleaseImage(&iplimage);
     
     return ret;
 }
 //https://sites.google.com/site/iprinceps/Home/iphone-1/converting-images-between-uiimage-and-iplimage
+
 
 // ALL DONE :)
 @end
