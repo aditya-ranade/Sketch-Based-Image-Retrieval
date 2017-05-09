@@ -14,7 +14,6 @@
 		A334AE951EB70D2F00A13096 /* libsuperlu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A334AE941EB70D2F00A13096 /* libsuperlu.a */; };
 		A334AE971EB70D8900A13096 /* armadillo_bits in Resources */ = {isa = PBXBuildFile; fileRef = A334AE961EB70D8900A13096 /* armadillo_bits */; };
 		A334AE991EB7106800A13096 /* lena.png in Resources */ = {isa = PBXBuildFile; fileRef = A334AE981EB7106800A13096 /* lena.png */; };
-		A334AE9F1EB841D200A13096 /* images in Resources */ = {isa = PBXBuildFile; fileRef = A334AE9E1EB841D200A13096 /* images */; };
 		A34213F51EBAF40A009A144C /* 5.png in Resources */ = {isa = PBXBuildFile; fileRef = A34213F41EBAF40A009A144C /* 5.png */; };
 		A34213FB1EBAFBD0009A144C /* images2 in Resources */ = {isa = PBXBuildFile; fileRef = A34213FA1EBAFBD0009A144C /* images2 */; };
 		A34213FD1EBB001F009A144C /* 6.png in Resources */ = {isa = PBXBuildFile; fileRef = A34213FC1EBB001F009A144C /* 6.png */; };
@@ -46,6 +45,13 @@
 		A357CF9F1EB5787400CB7CCE /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A357CF9E1EB5787400CB7CCE /* Accelerate.framework */; };
 		A3AB20641EBAC25A0078EB1E /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AB20631EBAC25A0078EB1E /* 1.png */; };
 		A3AB20681EBAC3940078EB1E /* 3.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AB20671EBAC3940078EB1E /* 3.png */; };
+		AC311F3A1EBB598D009BBE04 /* CollectionViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AC311F391EBB598D009BBE04 /* CollectionViewController.mm */; };
+		AC311F3C1EBB6949009BBE04 /* images in Resources */ = {isa = PBXBuildFile; fileRef = AC311F3B1EBB6949009BBE04 /* images */; };
+		ACD7DE041EBB41CC00CDE558 /* ACEDraggableText in Resources */ = {isa = PBXBuildFile; fileRef = ACD7DDFB1EBB41CB00CDE558 /* ACEDraggableText */; };
+		ACD7DE051EBB41CC00CDE558 /* ACEDrawingLabelView.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD7DDFD1EBB41CB00CDE558 /* ACEDrawingLabelView.m */; };
+		ACD7DE061EBB41CC00CDE558 /* ACEDrawingTools.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD7DDFF1EBB41CC00CDE558 /* ACEDrawingTools.m */; };
+		ACD7DE071EBB41CC00CDE558 /* ACEDrawingToolState.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD7DE011EBB41CC00CDE558 /* ACEDrawingToolState.m */; };
+		ACD7DE081EBB41CC00CDE558 /* ACEDrawingView.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD7DE031EBB41CC00CDE558 /* ACEDrawingView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,7 +112,6 @@
 		A334AE941EB70D2F00A13096 /* libsuperlu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libsuperlu.a; sourceTree = "<group>"; };
 		A334AE961EB70D8900A13096 /* armadillo_bits */ = {isa = PBXFileReference; lastKnownFileType = folder; path = armadillo_bits; sourceTree = "<group>"; };
 		A334AE981EB7106800A13096 /* lena.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lena.png; sourceTree = "<group>"; };
-		A334AE9E1EB841D200A13096 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		A34213F41EBAF40A009A144C /* 5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 5.png; sourceTree = "<group>"; };
 		A34213FA1EBAFBD0009A144C /* images2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images2; sourceTree = "<group>"; };
 		A34213FC1EBB001F009A144C /* 6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 6.png; sourceTree = "<group>"; };
@@ -147,6 +152,18 @@
 		A357CF9E1EB5787400CB7CCE /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		A3AB20631EBAC25A0078EB1E /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
 		A3AB20671EBAC3940078EB1E /* 3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 3.png; sourceTree = "<group>"; };
+		AC311F381EBB598D009BBE04 /* CollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollectionViewController.h; sourceTree = "<group>"; };
+		AC311F391EBB598D009BBE04 /* CollectionViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CollectionViewController.mm; sourceTree = "<group>"; };
+		AC311F3B1EBB6949009BBE04 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		ACD7DDFB1EBB41CB00CDE558 /* ACEDraggableText */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ACEDraggableText; sourceTree = "<group>"; };
+		ACD7DDFC1EBB41CB00CDE558 /* ACEDrawingLabelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACEDrawingLabelView.h; sourceTree = "<group>"; };
+		ACD7DDFD1EBB41CB00CDE558 /* ACEDrawingLabelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEDrawingLabelView.m; sourceTree = "<group>"; };
+		ACD7DDFE1EBB41CB00CDE558 /* ACEDrawingTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACEDrawingTools.h; sourceTree = "<group>"; };
+		ACD7DDFF1EBB41CC00CDE558 /* ACEDrawingTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEDrawingTools.m; sourceTree = "<group>"; };
+		ACD7DE001EBB41CC00CDE558 /* ACEDrawingToolState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACEDrawingToolState.h; sourceTree = "<group>"; };
+		ACD7DE011EBB41CC00CDE558 /* ACEDrawingToolState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEDrawingToolState.m; sourceTree = "<group>"; };
+		ACD7DE021EBB41CC00CDE558 /* ACEDrawingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACEDrawingView.h; sourceTree = "<group>"; };
+		ACD7DE031EBB41CC00CDE558 /* ACEDrawingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEDrawingView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,7 +236,6 @@
 				A357CEE91EB1A74700CB7CCE /* AppDelegate.m */,
 				A357CEEB1EB1A74700CB7CCE /* ViewController.h */,
 				A34213FA1EBAFBD0009A144C /* images2 */,
-				A334AE9E1EB841D200A13096 /* images */,
 				A357CF461EB1AB0800CB7CCE /* GFHOG.mm */,
 				A357CF521EB1AE5300CB7CCE /* objdetect_c.h */,
 				A357CF471EB1AB0800CB7CCE /* GFHOG.h */,
@@ -228,6 +244,18 @@
 				A334AE8D1EB60F5A00A13096 /* libjpeg.a */,
 				A357CF491EB1AB0D00CB7CCE /* HogDetect.h */,
 				A357CEEE1EB1A74700CB7CCE /* Main.storyboard */,
+				AC311F381EBB598D009BBE04 /* CollectionViewController.h */,
+				AC311F391EBB598D009BBE04 /* CollectionViewController.mm */,
+				AC311F3B1EBB6949009BBE04 /* images */,
+				ACD7DDFB1EBB41CB00CDE558 /* ACEDraggableText */,
+				ACD7DDFC1EBB41CB00CDE558 /* ACEDrawingLabelView.h */,
+				ACD7DDFD1EBB41CB00CDE558 /* ACEDrawingLabelView.m */,
+				ACD7DDFE1EBB41CB00CDE558 /* ACEDrawingTools.h */,
+				ACD7DDFF1EBB41CC00CDE558 /* ACEDrawingTools.m */,
+				ACD7DE001EBB41CC00CDE558 /* ACEDrawingToolState.h */,
+				ACD7DE011EBB41CC00CDE558 /* ACEDrawingToolState.m */,
+				ACD7DE021EBB41CC00CDE558 /* ACEDrawingView.h */,
+				ACD7DE031EBB41CC00CDE558 /* ACEDrawingView.m */,
 				A357CF441EB1AAFC00CB7CCE /* HogDetect.mm */,
 				A357CEF11EB1A74700CB7CCE /* Assets.xcassets */,
 				A357CEF31EB1A74700CB7CCE /* LaunchScreen.storyboard */,
@@ -450,11 +478,12 @@
 				A34214051EBB267D009A144C /* 8.png in Resources */,
 				A32D9BFB1EB99BBD000488F9 /* 9.png in Resources */,
 				A34213FF1EBB0673009A144C /* rapidjson in Resources */,
-				A334AE9F1EB841D200A13096 /* images in Resources */,
 				A334AE931EB70A0100A13096 /* 2.png in Resources */,
+				ACD7DE041EBB41CC00CDE558 /* ACEDraggableText in Resources */,
 				A342140F1EBB2AB3009A144C /* 20.png in Resources */,
 				A342140B1EBB29D5009A144C /* 17.png in Resources */,
 				A357CEF51EB1A74700CB7CCE /* LaunchScreen.storyboard in Resources */,
+				AC311F3C1EBB6949009BBE04 /* images in Resources */,
 				A357CF4B1EB1AC3700CB7CCE /* opencv in Resources */,
 				A3AB20681EBAC3940078EB1E /* 3.png in Resources */,
 				A34213FD1EBB001F009A144C /* 6.png in Resources */,
@@ -503,6 +532,11 @@
 				A357CF451EB1AAFC00CB7CCE /* HogDetect.mm in Sources */,
 				A357CF481EB1AB0800CB7CCE /* GFHOG.mm in Sources */,
 				A357CEEA1EB1A74700CB7CCE /* AppDelegate.m in Sources */,
+				ACD7DE071EBB41CC00CDE558 /* ACEDrawingToolState.m in Sources */,
+				ACD7DE051EBB41CC00CDE558 /* ACEDrawingLabelView.m in Sources */,
+				ACD7DE081EBB41CC00CDE558 /* ACEDrawingView.m in Sources */,
+				ACD7DE061EBB41CC00CDE558 /* ACEDrawingTools.m in Sources */,
+				AC311F3A1EBB598D009BBE04 /* CollectionViewController.mm in Sources */,
 				A357CEE71EB1A74700CB7CCE /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -681,7 +715,7 @@
 					"$(PROJECT_DIR)",
 					"$(SRCROOT)",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/SIBR";
 				INFOPLIST_FILE = SIBR/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -706,7 +740,7 @@
 					"$(PROJECT_DIR)",
 					"$(SRCROOT)",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/SIBR";
 				INFOPLIST_FILE = SIBR/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

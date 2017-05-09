@@ -8,6 +8,7 @@
 
 
 #import "ViewController.h"
+//#import "ACEDrawingView.h"
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
 #ifdef __cplusplus
@@ -25,6 +26,7 @@
 #include <dirent.h>
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#import "CollectionViewController.h"
 
 
 
@@ -41,24 +43,33 @@ using namespace cv;
 using namespace rapidjson;
 
 
+
 typedef struct {
     GFHOG descriptor;
     string buf;
     
 }return_value;
+std::vector<std::pair<double, string>> mapVector;
 
 
-@interface ViewController () {
+@interface ViewController (){
     // Setup the view
-    UIImageView *imageView_;
+    //UIImageView *imageView_;
+    IBOutlet ACEDrawingView *drawView;
+    
+    
 }
+- (IBAction)clearImage:(id)sender;
+
+- (IBAction)processImage:(id)sender;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    [self.view addSubview:drawView];
+    /*
     string buf = "";
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -70,7 +81,7 @@ typedef struct {
     
     string path = "/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/images2/";
     
-    
+    */
     
     //    DIR *dir;
     //    struct dirent *ent;
@@ -98,10 +109,10 @@ typedef struct {
     //
     //                                NSString *image_path = [NSString stringWithUTF8String:img_path.c_str()];
     
-    UIImage *image = [UIImage imageNamed:@"heart.jpg"];
+    //UIImage *image = [UIImage imageNamed:@"heart.jpg"];
     
     
-    imageView_ = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - image.size.width/2, self.view.frame.size.height/2 - image.size.height/2, image.size.width, image.size.height)];
+    //imageView_ = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - image.size.width/2, self.view.frame.size.height/2 - image.size.height/2, image.size.width, image.size.height)];
     
     // 2. Important: add OpenCV_View as a subview
     //[self.view addSubview:imageView_];
@@ -110,13 +121,13 @@ typedef struct {
     //else cout << "Cannot read in the file" << endl;
     
     // 4. Next convert to a cv::Mat
-    Mat cvImage; UIImageToMat(image, cvImage);
+    //Mat cvImage; UIImageToMat(image, cvImage);
     
     // 5. Now apply some OpenCV operations
-    Mat gray;
-    cvtColor(cvImage, gray, CV_RGB2GRAY);
+    //Mat gray;
+    //cvtColor(cvImage, gray, CV_RGB2GRAY);
     
-    
+    /*
     
     IplImage *img = CreateIplImageFromUIImage(image);
     
@@ -170,10 +181,10 @@ typedef struct {
         //cvCopyMakeBorder(mask,mask,cvPoint(setSize/10,setSize/10),IPL_BORDER_CONSTANT);
     }
     
-    GFHOG descriptor;
+    GFHOG descriptor;*/
     
     //cout << "adasx" << endl;
-    
+    /*
     descriptor.Compute(img,(GFHOGType)type,mask);
     std::stringstream ss;
     
@@ -191,7 +202,7 @@ typedef struct {
     
     string result = ss.str();
     
-    buf += result;
+    buf += result;*/
     //                            }
     //
     //                        }
@@ -199,6 +210,7 @@ typedef struct {
     //                }
     //            }
     //        }
+    /*
     
     NSString* data = [NSString stringWithUTF8String:buf.c_str()];
     
@@ -210,9 +222,9 @@ typedef struct {
     //        perror ("file not found");
     //
     
-    
-    Document freq_hist = read_files("/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/freq_hist_normalized.json");
-    Document centers = read_files("/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/centers-2.json");
+    /*
+    Document freq_hist = read_files("/Users/akshat/Downloads/freq_hist_normalized.json");
+    Document centers = read_files("/Users/akshat/Downloads/centers-3.json");
     
     Value &new_center = centers;
     Value &new_freq_hist = freq_hist;
@@ -247,7 +259,7 @@ typedef struct {
     
     for (int i=0; i<mapVector.size(); i++) cout << mapVector[i].second << endl;
 
-}
+}*/
 
     //cout << rank[0] << endl;
     
@@ -429,9 +441,30 @@ typedef struct {
 //        cvConvertScale(g,g8bit,255);
 //        cvSaveImage(grad_path.c_str(),g8bit);
 //    }
-//    
-    
+//
+}
 
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"moveToCollection"]) {
+        
+        // Get destination view
+        CollectionViewController *vc = [segue destinationViewController];
+        cout<<"sd"<<endl;
+        cout<<mapVector[0].second.c_str()<<endl;
+        // Get button tag number (or do whatever you need to do here, based on your object
+        NSString *a=[NSString stringWithUTF8String:mapVector[0].second.c_str()];
+        NSString *b=[NSString stringWithUTF8String:mapVector[1].second.c_str()];
+        NSString *c=[NSString stringWithUTF8String:mapVector[2].second.c_str()];
+        NSString *d=[NSString stringWithUTF8String:mapVector[3].second.c_str()];
+        NSString *e=[NSString stringWithUTF8String:mapVector[4].second.c_str()];
+        NSArray *pho = [NSArray arrayWithObjects: a, b, c, d, e, nil];
+        
+        // Pass the information to your destination view
+        vc.process_photos=pho;
+    }
+}
 
 return_value *create_descriptors(IplImage *img, string image_name) {
     
@@ -576,4 +609,196 @@ IplImage *CreateIplImageFromUIImage(UIImage *image) {
 
 
 // ALL DONE :)
+
+
+- (IBAction)clearImage:(id)sender {
+    [drawView clear];
+}
+
+- (IBAction)processImage:(id)sender {
+    UIGraphicsBeginImageContext(drawView.bounds.size);
+    
+    
+    [drawView.layer renderInContext:UIGraphicsGetCurrentContext()];
+    
+    UIImage *view_image = UIGraphicsGetImageFromCurrentImageContext();
+    //NSArray *paths_2 = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    //NSString *filePath2 = [[paths_2 objectAtIndex:0] stringByAppendingPathComponent:@"Image.png"];
+    
+    // Save image.
+    //[UIImage imageWithData:UIImageJPEGRepresentation(image, 0)];
+    UIImage *image=[UIImage imageWithData:UIImageJPEGRepresentation(view_image, 0)]; //writeToFile:filePath2 atomically:YES];
+
+    //UIImage *image=[UIImage imageNamed:@"/Users/akshat/Library/Developer/CoreSimulator/Devices/72699772-0359-44AF-A97D-2E3D323E6909/data/Containers/Data/Application/BDC0AEBF-1264-4E11-AAAB-37D470B9657D/Documents/Image.png"];
+    
+    
+    //UIGraphicsEndImageContext();
+    //UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+    string buf = "";
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"bruv.txt"];
+    
+    const char *fname = [filePath UTF8String];
+    
+    
+    //string path = "/Users/aranade/Downloads/SIBR-1acc1848f97f9435ae4946b546f01140545d0e49/SIBR/images2/";
+    
+    //UIImage *image = [UIImage imageNamed:@"heart.jpg"];
+    
+    
+    //imageView_ = [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - image.size.width/2, self.view.frame.size.height/2 - image.size.height/2, image.size.width, image.size.height)];
+    
+    // 2. Important: add OpenCV_View as a subview
+    //[self.view addSubview:imageView_];
+    
+    //if(image != nil) imageView_.image = image; // Display the image if it is there....
+    //else cout << "Cannot read in the file" << endl;
+    
+    // 4. Next convert to a cv::Mat
+    Mat cvImage; UIImageToMat(image, cvImage);
+    //cout<<cvImage<<endl;
+    
+    // 5. Now apply some OpenCV operations
+    Mat gray;
+    cvtColor(cvImage, gray, CV_RGB2GRAY);
+    
+    
+    
+    IplImage *img = CreateIplImageFromUIImage(image);
+    //cout<<img<<endl;
+    
+    
+    int type = 0;
+    int setSize = 100;
+    
+    std::string image_path;
+    std::string mask_path;
+    std::string grad_path;
+    std::string out_path;
+    
+    if (!img){
+        std::cout <<"Error Loading Image" << std::endl;
+    }
+    
+    if (std::max(img->width,img->height) > setSize){
+        // Change in size
+        CvSize s;
+        if (img->width > setSize){
+            float r = (float)setSize / img->width ;
+            s.width = setSize;
+            s.height = (float)(img->height) * r;
+        }else{
+            float r = (float)setSize / img->height ;
+            s.height = setSize;
+            s.width = (float)(img->width) * r;
+        }
+        IplImage *resize = cvCreateImage(s,8,1);
+        
+        cout << typeid(resize).name() << endl;
+        cout << typeid(img).name() << endl;
+        
+        cvResize(img,resize);
+        cvReleaseImage(&img);
+        img = resize;
+    }
+    
+    IplImage* mask = NULL;
+    if (mask_path.length()){
+        mask = cvLoadImage(image_path.c_str(),0);
+        if (!mask){
+            std::cout <<"Error Loading Mask" << std::endl;
+        }
+        cvZero(mask);
+        cvCopyMakeBorder(mask,mask,cvPoint(setSize/100,setSize/100),IPL_BORDER_CONSTANT);
+    }else{
+        mask = cvCreateImage(cvGetSize(img),8,1);
+        cvZero(mask);
+        cvNot(mask,mask);
+        //cvCopyMakeBorder(mask,mask,cvPoint(setSize/10,setSize/10),IPL_BORDER_CONSTANT);
+    }
+    
+    GFHOG descriptor;
+    
+    //cout << "adasx" << endl;
+    
+    descriptor.Compute(img,(GFHOGType)type,mask);
+    std::stringstream ss;
+    
+    
+    
+    GFHOG::iterator it1 = descriptor.begin();
+    for ( ; it1 < descriptor.end() ; it1++){
+        //arma::vec a(*it1);
+        //a.save(fname, arma::raw_ascii);
+        writeVector(*it1,&ss);
+        ss << "," << "bicycle.png" << std::endl;
+    }
+    
+    
+    
+    string result = ss.str();
+    
+    buf += result;
+    //                            }
+    //
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    
+    NSString* data = [NSString stringWithUTF8String:buf.c_str()];
+    
+    NSError *error;
+    BOOL status = [data writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    //closedir (dir);
+    //    } else {
+    //        /* could not open directory */
+    //        perror ("file not found");
+    //
+    
+    
+    Document freq_hist = read_files("/Users/akshat/Downloads/freq_hist_normalized.json");
+    Document centers = read_files("/Users/akshat/Downloads/centers.json");
+    
+    Value &new_center = centers;
+    Value &new_freq_hist = freq_hist;
+    
+    
+    
+    
+    
+    GFHOG search;
+    
+    
+    std::map<std::string, double> rank;
+    rank = descriptor.compute_search(new_freq_hist, new_center, 1000);
+    
+    cout << rank.size() << endl;
+    
+    
+    
+    
+    //std::vector<std::pair<double, string>> mapVector;
+    std::map<string, double> map1;
+    // Insert entries
+    for (auto iterator = rank.begin(); iterator != rank.end(); ++iterator) {
+        string temp = iterator->first;
+        
+        std::map<string, double> map1;
+        
+        mapVector.push_back(make_pair(iterator->second, iterator->first));
+    }
+    
+    sort(mapVector.begin(), mapVector.end());
+    
+    for (int i=0; i<mapVector.size(); i++) cout << mapVector[i].second << endl;
+    [self performSegueWithIdentifier:@"moveToCollection" sender:sender];
+    
+    
+}
+
+
 @end
