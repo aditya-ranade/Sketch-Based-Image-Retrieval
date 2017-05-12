@@ -65,7 +65,7 @@ public:
     void writeVector(std::vector<double>& v, const char *fname, int i);
     void save2file(const char *fname);
     int get_best_cluster(std::vector<double> &descript, rapidjson::Value &centers, int k);
-     std::map<std::string, double> compute_search(Value &freq_hist, Value &centers, int k);
+    std::vector<std::pair<double, std::string>> compute_search(Value &freq_hist, Value &centers, Value &inv_freq, int k);
 
 	IplImage* Gradient() { return _gradient; };
 	static IplImage* ResizeToFaster(IplImage* image,int maxdim);

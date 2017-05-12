@@ -14,6 +14,7 @@ using namespace std;
     //NSArray *process_photos;
 //@property (nonatomic, assign) NSArray *process_photos;
 //NSArray *process_photos;
+- (IBAction)goBack:(id)sender;
 @end
 
 @implementation CollectionViewController
@@ -112,4 +113,9 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 */
 
+- (IBAction)goBack:(id)sender {
+    [self performSegueWithIdentifier:@"backHome" sender:sender];
+    [self viewDidLoad];
+    [self viewWillAppear:YES];
+}
 @end

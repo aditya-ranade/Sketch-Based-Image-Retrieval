@@ -20,79 +20,109 @@
 #include <dirent.h>
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#include <thread>
 
 
 
 using namespace arma;
 
-using namespace superlu;
+//using namespace superlu;
 
 using namespace rapidjson;
+
+
+typedef struct {
+    std::string name;
+    vec *desc_freq;
+}images;
+
+
+/////////////////////////////////////////////////////////
+#include "Eigen/Dense"
+#include "Eigen/SparseCore"
+#include "Eigen/Sparse"
+#include "Eigen/SparseQR"
+
+
+
+//using namespace arma;
+
+using namespace Eigen;
+using namespace std;
+
+//using namespace superlu;
+
+//std::map<std::string, double> rank1;
+//std::map<std::string, double> rank2;
+//std::map<std::string, double> rank3;
+//std::map<std::string, double> rank4;
+
+
 
 
 
 
 
 /////////////////////////////////////////////////////////
-void create_CompCol_Matrix(SuperMatrix *A,int m,int n,int nnz, double *nzval,int *rowind,int *colptr,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
-    NCformat *Astore;
-    A->Stype = stype;
-    A->Dtype = dtype;
-    A->Mtype = mtype;
-    A->nrow = m;
-    A->ncol = n;
-    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
-    ((unsigned long *) buf)[0] = sizeof(NCformat);
-    buf=buf+sizeof(double);
-    A->Store = (void *) (buf);
-    if ( !(A->Store) ) strerror(4);
-    Astore = (NCformat *)A->Store;
-    Astore->nnz = nnz;
-    Astore->nzval = nzval;
-    Astore->rowind = rowind;
-    Astore->colptr = colptr;
-    
-}
-void create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
-    DNformat    *Xstore;
-    X->Stype = stype;
-    X->Dtype = dtype;
-    X->Mtype = mtype;
-    X->nrow = m;
-    X->ncol = n;
-    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
-    ((unsigned long *) buf)[0] = sizeof(NCformat);
-    buf=buf+sizeof(double);
-    X->Store = (void *) buf;
-    Xstore = (DNformat *) X->Store;
-    Xstore->lda = ldx;
-    Xstore->nzval = (double *) x;
-    
-}
-
-
-
-
-
-int *intMalloc(int n) {
-    int *buf;
-    buf = (int *) superlu_malloc((size_t) n * sizeof(int));
-    if ( !buf ) {
-        strerror(1);
-    }
-    return (buf);
-}
-
-double *doubleMalloc(int n)
-{
-    double *buf;
-    buf = (double *) superlu_malloc((size_t)n * sizeof(double));
-    if ( !buf ) {
-        strerror(1);
-    }
-    return (buf);
-}
-
+//void create_CompCol_Matrix(SuperMatrix *A,int m,int n,int nnz, double *nzval,int *rowind,int *colptr,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
+//    NCformat *Astore;
+//    A->Stype = stype;
+//    A->Dtype = dtype;
+//    A->Mtype = mtype;
+//    A->nrow = m;
+//    A->ncol = n;
+//    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
+//    ((unsigned long *) buf)[0] = sizeof(NCformat);
+//    buf=buf+sizeof(double);
+//    A->Store = (void *) (buf);
+//    if ( !(A->Store) ) strerror(4);
+//    Astore = (NCformat *)A->Store;
+//    Astore->nnz = nnz;
+//    Astore->nzval = nzval;
+//    Astore->rowind = rowind;
+//    Astore->colptr = colptr;
+//
+//}
+//void create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,Stype_t stype, Dtype_t dtype, Mtype_t mtype){
+//    DNformat    *Xstore;
+//    X->Stype = stype;
+//    X->Dtype = dtype;
+//    X->Mtype = mtype;
+//    X->nrow = m;
+//    X->ncol = n;
+//    char *buf=(char *) std::malloc(sizeof(NCformat)+sizeof(double));
+//    ((unsigned long *) buf)[0] = sizeof(NCformat);
+//    buf=buf+sizeof(double);
+//    X->Store = (void *) buf;
+//    Xstore = (DNformat *) X->Store;
+//    Xstore->lda = ldx;
+//    Xstore->nzval = (double *) x;
+//
+//}
+//
+//
+//
+//
+//
+//int *intMalloc(int n) {
+//    int *buf;
+//    buf = (int *) superlu_malloc((size_t) n * sizeof(int));
+//    if ( !buf ) {
+//        strerror(1);
+//    }
+//    return (buf);
+//}
+//
+//double *doubleMalloc(int n)
+//{
+//    double *buf;
+//    buf = (double *) superlu_malloc((size_t)n * sizeof(double));
+//    if ( !buf ) {
+//        strerror(1);
+//    }
+//    return (buf);
+//}
+//
 
 
 
@@ -104,355 +134,595 @@ GFHOG::GFHOG(void):_gradient(NULL)
 
 GFHOG::~GFHOG(void)
 {
-	if (_gradient){
-		cvReleaseImage(&_gradient);
-		_gradient = NULL;
-	}
+    if (_gradient){
+        cvReleaseImage(&_gradient);
+        _gradient = NULL;
+    }
 }
 void GFHOG::Compute(IplImage* src,GFHOGType t, IplImage* mask){
-	assert(src->depth == 8);
-	switch (t){
-	case Image:
-		ComputeImage(src,mask);
-		break;
-	case Sketch:
-		ComputeSketch(src,mask);
-		break;
-	}
+    assert(src->depth == 8);
+    switch (t){
+        case Image:
+            ComputeImage(src,mask);
+            break;
+        case Sketch:
+            ComputeSketch(src,mask);
+            break;
+    }
 }
 
 void GFHOG::ComputeImage(IplImage* src,IplImage* mask){
-	IplImage* runImg = cvCloneImage(src);
-	if (src->nChannels > 1){
-		IplImage* gimg=cvCreateImage(cvGetSize(runImg),src->depth,1);
-		cvCvtColor(runImg,gimg,CV_BGR2GRAY);
-		cvReleaseImage(&runImg);
-		runImg = gimg;
-	}
-	IplImage* edge=cvCreateImage(cvGetSize(runImg),runImg->depth,1);
-	for (int s=19; s>=1; s-=2) {
-		cvSmooth(runImg,edge,CV_GAUSSIAN,s);
-		cvCanny(edge,edge,100,200);
-		CvScalar sc=cvSum(edge);
-		float area=sc.val[0]/(float)(255*runImg->width*runImg->height);
-		if (area>0.02)
-			break;
-	}
-	cvNot(edge,edge);
-	ComputeGradient(edge,mask);
+    IplImage* runImg = cvCloneImage(src);
+    if (src->nChannels > 1){
+        IplImage* gimg=cvCreateImage(cvGetSize(runImg),src->depth,1);
+        cvCvtColor(runImg,gimg,CV_BGR2GRAY);
+        cvReleaseImage(&runImg);
+        runImg = gimg;
+    }
+    IplImage* edge=cvCreateImage(cvGetSize(runImg),runImg->depth,1);
+    for (int s=19; s>=1; s-=2) {
+        cvSmooth(runImg,edge,CV_GAUSSIAN,s);
+        cvCanny(edge,edge,100,200);
+        CvScalar sc=cvSum(edge);
+        float area=sc.val[0]/(float)(255*runImg->width*runImg->height);
+        if (area>0.02)
+            break;
+    }
+    cvNot(edge,edge);
+    ComputeGradient(edge,mask);
 }
 
 void GFHOG::ComputeSketch(IplImage* src,IplImage* mask){
-	IplImage* runImg = cvCloneImage(src);
-	if (src->nChannels > 1){
-		IplImage* gimg=cvCreateImage(cvGetSize(runImg),8,1);
-		cvCvtColor(runImg,gimg,CV_BGR2GRAY);
-		//cvReleaseImage(&runImg);
-		runImg = gimg;
-	} 
-	ComputeGradient(runImg,mask);
+    IplImage* runImg = cvCloneImage(src);
+    if (src->nChannels > 1){
+        IplImage* gimg=cvCreateImage(cvGetSize(runImg),8,1);
+        cvCvtColor(runImg,gimg,CV_BGR2GRAY);
+        cvReleaseImage(&runImg);
+        runImg = gimg;
+    }
+    ComputeGradient(runImg,mask);
 }
 
 void GFHOG::ComputeGradient(IplImage* sk8bit,IplImage* mask){
-	if (!mask){
-		mask = cvCreateImage(cvGetSize(sk8bit),8,1);
-		cvZero(mask);
-		cvNot(mask,mask);
-	}
-	IplImage* gradient=cvCreateImage(cvGetSize(sk8bit),32,1);
-	cvConvertScale(sk8bit,gradient,1.0/255.0,0);
-	gradientField(gradient,mask);
-
-	IplImage* g = cvCreateImage(cvGetSize(gradient),32,1);
-	double mi,ma;
-	cvMinMaxLoc(g,&mi,&ma);
-	CvScalar s;
-	s.val[0] = mi;
-	cvSubS(g,s,g);
-	cvScale(g,g,1.0 / (ma-mi));
-
-	cvNot(sk8bit,sk8bit);
-	_gradient = gradient;
-	histogramOfGradients(sk8bit,gradient);
+    if (!mask){
+        mask = cvCreateImage(cvGetSize(sk8bit),8,1);
+        cvZero(mask);
+        cvNot(mask,mask);
+    }
+    IplImage* gradient=cvCreateImage(cvGetSize(sk8bit),32,1);
+    cvConvertScale(sk8bit,gradient,1.0/255.0,0);
+    gradientField(gradient,mask);
+    
+    IplImage* g = cvCreateImage(cvGetSize(gradient),32,1);
+    double mi,ma;
+    cvMinMaxLoc(g,&mi,&ma);
+    CvScalar s;
+    s.val[0] = mi;
+    cvSubS(g,s,g);
+    cvScale(g,g,1.0 / (ma-mi));
+    
+    cvNot(sk8bit,sk8bit);
+    _gradient = gradient;
+    histogramOfGradients(sk8bit,gradient);
 }
 
 IplImage* GFHOG::ResizeToFaster(IplImage* img,int maxdim)
 {
-	CvSize s;
-	if (img->width > maxdim){
-		float r = (float)maxdim / img->width ;
-		s.width = maxdim;
-		s.height = (float)(img->height) * r;
-	}else{
-		float r = (float)maxdim / img->height ;
-		s.height = maxdim;
-		s.width = (float)(img->width) * r;
-	}
-	IplImage* resize = cvCreateImage(s,img->depth,img->nChannels);
-	cvResize(img,resize);
-	return  resize;
+    CvSize s;
+    if (img->width > maxdim){
+        float r = (float)maxdim / img->width ;
+        s.width = maxdim;
+        s.height = (float)(img->height) * r;
+    }else{
+        float r = (float)maxdim / img->height ;
+        s.height = maxdim;
+        s.width = (float)(img->width) * r;
+    }
+    IplImage* resize = cvCreateImage(s,img->depth,img->nChannels);
+    cvResize(img,resize);
+    return  resize;
 }
 
 void GFHOG::histogramOfGradients(IplImage* edge,IplImage* gradient)
 {
-	std::vector<int> scales;
-	SETUP_SCALES
-
-//	cvNot(edge,edge);
-
+    std::vector<int> scales;
+    SETUP_SCALES
+    
+    //	cvNot(edge,edge);
+    
 #ifdef NOHOGZONE
-	HogDetect* H=new HogDetect(gradient,edge);
+    HogDetect* H=new HogDetect(gradient,edge);
 #else
-	HogDetect* H=new HogDetect(gradient);
+    HogDetect* H=new HogDetect(gradient);
 #endif
-
-	HOGPARAMS params;
-	params.hogchannels=9;
-	params.superwinsize=3;
-	int D=params.superwinsize * params.superwinsize* params.hogchannels;
-	float* histo=new float[D];
-	for (std::vector<int>::iterator t=scales.begin(); t!=scales.end(); t++) {
-		params.winsize=*t;
-		memset(histo,0,sizeof(float)*D);
-		for (int y=0; y<edge->height; y++) {	
-			for (int x=0; x<edge->width; x++) {	
-				if (edge->imageData[x+y*edge->widthStep] ) {
-					
-					H->GetHOG(x,y,histo,&params);
-				
-					if (histo[0]!=-1) {
-						std::vector<double> descriptor;
-						for (int i = 0 ; i < D ; i++)
-							descriptor.push_back(histo[i]);
-						push_back(descriptor);
-					}
-					
-				}				
-			}
-		}
-	}
-
-	delete [] histo;
-	delete H;
+    
+    HOGPARAMS params;
+    params.hogchannels=9;
+    params.superwinsize=3;
+    int D=params.superwinsize * params.superwinsize* params.hogchannels;
+    float* histo=new float[D];
+    for (std::vector<int>::iterator t=scales.begin(); t!=scales.end(); t++) {
+        params.winsize=*t;
+        memset(histo,0,sizeof(float)*D);
+        for (int y=0; y<edge->height; y++) {
+            for (int x=0; x<edge->width; x++) {
+                if (edge->imageData[x+y*edge->widthStep] ) {
+                    
+                    H->GetHOG(x,y,histo,&params);
+                    
+                    if (histo[0]!=-1) {
+                        std::vector<double> descriptor;
+                        for (int i = 0 ; i < D ; i++)
+                            descriptor.push_back(histo[i]);
+                        push_back(descriptor);
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    delete [] histo;
+    delete H;
 }
 
 
 void GFHOG::gradientField(IplImage* inpmask32,IplImage* filtermask32)
 {
-
-	int ww=inpmask32->width/POISSON_SPEEDUP_DEGRADE;
-	int hh=inpmask32->height/POISSON_SPEEDUP_DEGRADE;
-
-	IplImage* mask32=cvCreateImage(cvSize(ww,hh),32,1);
-	cvResize(inpmask32,mask32,CV_INTER_LINEAR);
-
-	// gradient interpolation
-	IplImage* mask=cvCreateImage(cvGetSize(mask32),8,1);
-	cvConvertScale(mask32,mask,255.0,0);
-
-	IplImage* dx=cvCreateImage(cvGetSize(mask),32,1);
-	IplImage* dy=cvCreateImage(cvGetSize(mask),32,1);
-
-	cvSobel(mask32,dx,1,0,3);
-	cvSobel(mask32,dy,0,1,3);
-
-
-
-	cvMul(filtermask32,dx,dx);
-	cvMul(filtermask32,dy,dy);
-
-	//cvNot(mask,mask);
-	for (int j=0; j<mask->height; j++) {		
-		mask->imageData[j*mask->width]=0;
-		mask->imageData[j*mask->width + (mask->width-1)]=0;
-	}
-	memset(mask->imageData,0,mask->width);
-	memset(mask->imageData+(mask->height-1)*mask->width,0,mask->width);
-
-	cvErode(mask,mask);
-
-
+    
+    int ww=inpmask32->width/POISSON_SPEEDUP_DEGRADE;
+    int hh=inpmask32->height/POISSON_SPEEDUP_DEGRADE;
+    
+    IplImage* mask32=cvCreateImage(cvSize(ww,hh),32,1);
+    cvResize(inpmask32,mask32,CV_INTER_LINEAR);
+    
+    // gradient interpolation
+    IplImage* mask=cvCreateImage(cvGetSize(mask32),8,1);
+    cvConvertScale(mask32,mask,255.0,0);
+    
+    IplImage* dx=cvCreateImage(cvGetSize(mask),32,1);
+    IplImage* dy=cvCreateImage(cvGetSize(mask),32,1);
+    
+    cvSobel(mask32,dx,1,0,3);
+    cvSobel(mask32,dy,0,1,3);
+    
+    
+    
+    cvMul(filtermask32,dx,dx);
+    cvMul(filtermask32,dy,dy);
+    
+    //cvNot(mask,mask);
+    for (int j=0; j<mask->height; j++) {
+        mask->imageData[j*mask->width]=0;
+        mask->imageData[j*mask->width + (mask->width-1)]=0;
+    }
+    memset(mask->imageData,0,mask->width);
+    memset(mask->imageData+(mask->height-1)*mask->width,0,mask->width);
+    
+    cvErode(mask,mask);
+    
+    
 #ifdef SKIP_GRADIENT_FIELD_INTERPOLATION
-	IplImage* result_dx=cvCloneImage(dx);
-	IplImage* result_dy=cvCloneImage(dy);
+    IplImage* result_dx=cvCloneImage(dx);
+    IplImage* result_dy=cvCloneImage(dy);
 #else
-	IplImage* result_dx=poissoncompute(dx,mask);
-	IplImage* result_dy=poissoncompute(dy,mask);
+    IplImage* result_dx=poissoncompute(dx,mask);
+    IplImage* result_dy=poissoncompute(dy,mask);
 #endif
-
-
-	IplImage* mag=cvCreateImage(cvGetSize(result_dx),32,1);
-	IplImage* ang=cvCreateImage(cvGetSize(result_dx),32,1);
-
-	cvCartToPolar(result_dx,result_dy,ang,mag);
+    
+    
+    IplImage* mag=cvCreateImage(cvGetSize(result_dx),32,1);
+    IplImage* ang=cvCreateImage(cvGetSize(result_dx),32,1);
+    
+    cvCartToPolar(result_dx,result_dy,ang,mag);
 #ifdef DO_COSINE
-	cvReleaseImage(&ang);
-	ang=mag;
-	for (int y=0; y<ang->height; y++) {
-		for (int x=0; x<ang->width; x++) {
-			((float*)ang->imageData)[x+y*ang->width]=cos(((float*)ang->imageData)[x+y*ang->width]);
-				
-		}
-	}
-	cvConvertScale(ang,ang,1.0/2.0,0.5);
+    cvReleaseImage(&ang);
+    ang=mag;
+    for (int y=0; y<ang->height; y++) {
+        for (int x=0; x<ang->width; x++) {
+            ((float*)ang->imageData)[x+y*ang->width]=cos(((float*)ang->imageData)[x+y*ang->width]);
+            
+        }
+    }
+    cvConvertScale(ang,ang,1.0/2.0,0.5);
 #else
-	cvConvertScale(mag,ang,1.0/(2.0*PI),0);
-	cvReleaseImage(&mag);
+    cvConvertScale(mag,ang,1.0/(2.0*PI),0);
+    cvReleaseImage(&mag);
 #endif
-
-	//cvCopy(ang,mask32);
-	cvReleaseImage(&mask);
-	cvReleaseImage(&dx);
-	cvReleaseImage(&dy);
-
-	cvResize(ang,inpmask32,CV_INTER_LINEAR);
-	cvReleaseImage(&ang);
-
+    
+    //cvCopy(ang,mask32);
+    cvReleaseImage(&mask);
+    cvReleaseImage(&dx);
+    cvReleaseImage(&dy);
+    
+    cvResize(ang,inpmask32,CV_INTER_LINEAR);
+    cvReleaseImage(&ang);
+    
 }
 
 IplImage* GFHOG::poissoncompute(IplImage* src, IplImage* mask){
-   
-
-    std::map<unsigned int,unsigned int>	masked;
-	int N = 0;
-    for (int y = 1; y < src->height-1; y++) {
-		for (int x = 1; x < src->width-1; x++) {
-			unsigned int id = y*src->width+x;
-			if (mask->imageData[id]) {  //Masked pixel
-				masked[id] = N;
-				N++;
-			}
-		}
-	}
-
-	SuperMatrix    A, L, U;
-	SuperMatrix    B;
-	NCformat       *Ustore;
-	double         *a,*rhs,*u;
-	int            *asub, *xa;
-	int            *perm_r;  //row permutations from partial pivoting
-	int            *perm_c;  //column permutation vector
-	int            info, nrhs,row_inc;
-	int            m, n, nnz,index;
-	superlu_options_t options;
-	SuperLUStat_t stat;
-	set_default_options(&options);
-
-	m = n =  N;
-	nnz = N * 5;
-
-	if ( !(a = doubleMalloc(nnz)) ) strerror(1);
-	if ( !(asub = intMalloc(nnz)) ) strerror(1);
-	if ( !(xa = intMalloc(n+1)) ) strerror(1);;
-
-
-	nrhs = 1;
-	index = 0;
-	if ( !(rhs = doubleMalloc(m * nrhs)) ) strerror(1);;
-	row_inc = 0;
-	for (int y = 1; y < src->height-1; y++) {
-		for (int x = 1; x < src->width-1; x++) {
-			if (mask->imageData[x+y*src->width]) {  //Variable
-				unsigned int id = x+y*src->width;
-				xa[row_inc] = index;
-
-				 //Right hand side is initialized to zero
-				CvScalar bb=cvScalarAll(0);
-
-				if (mask->imageData[(x)+(y-1)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id-src->width];
-					index++;
-				} else {
-					// Known pixel, update right hand side
-					bb=sub(bb,cvGet2D(src,y-1,x));
-				}
-
-
-				if (mask->imageData[(x-1)+(y)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id-1];
-					index++;
-				} else {
-					bb=sub(bb,cvGet2D(src,y,x-1));
-				}
-				a[index] = -4.0;
-				asub[index] = masked[id];
-				index++;
-
-				if (mask->imageData[(x+1)+(y)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id+1];
-					index++;
-				} else {
-					bb=sub(bb,cvGet2D(src,y,x+1));
-				}
-
-				if (mask->imageData[(x)+(y+1)*src->width]) {
-					a[index] = 1.0;
-					asub[index] = masked[id+src->width];
-					index++;
-				} else {
-					bb=sub(bb,cvGet2D(src,y+1,x));
-				}
-
-				unsigned int i = masked[id];
-				 //Spread the right hand side so we can solve using TAUCS for
-				 //3 channels at once.
-				for (int chan=0; chan<src->nChannels; chan++) {
-					rhs[i+N*chan] = bb.val[chan];
-				}
-				row_inc++;
-			}
-		}
-	}
-	assert(row_inc == N);
-	xa[n] = index;
-
-	 //Create matrix A in the format expected by SuperLU.
-	create_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
-	 //Create right-hand side matrix B.
-	create_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
-	 //Set the default input options.
-	set_default_options(&options);
-	options.ColPerm = NATURAL;
-	options.Trans = TRANS;
-	options.ColPerm = COLAMD;
-	if ( !(perm_r = intMalloc(m)) ) strerror(1);
-	if ( !(perm_c = intMalloc(n)) ) strerror(1);
-
-	 //Initialize the statistics variables.
-	StatInit(&stat);
-	 //Solve the linear system.
     
-    dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
-	Ustore = (NCformat *)B.Store;
-	u = (double*) Ustore->nzval;
-	IplImage* result=cvCreateImage(cvGetSize(src),32,src->nChannels);
-	cvCopy(src,result);
-	for (int y = 1; y < src->height; y++) {
-		for (int x = 1; x < src->width; x++) {
-			if (mask->imageData[(x)+(y)*src->width]) {
-				unsigned int id = y*src->width+x;
-				unsigned int ii = masked[id];
-				CvScalar p;
-				for (int chan=0; chan<src->nChannels; chan++) {
-					p.val[chan]=u[ii+N*chan];
-				}
-				cvSet2D(result,y,x,p);
-			}
-		}
-	}
-	// Clean Up Solver
-	superlu_free (rhs);
-	superlu_free(perm_r);
-	superlu_free (perm_c);
-	//Destroy_CompCol_Matrix(&A);
-	//Destroy_SuperMatrix_Store(&B);
-	//Destroy_SuperNode_Matrix(&L);
-	//Destroy_CompCol_Matrix(&U);
-	return result;
+    
+    std::map<unsigned int,unsigned int>	masked;
+    int N = 0;
+    for (int y = 1; y < src->height-1; y++) {
+        for (int x = 1; x < src->width-1; x++) {
+            unsigned int id = y*src->width+x;
+            if (mask->imageData[id]) {  //Masked pixel
+                masked[id] = N;
+                N++;
+            }
+        }
+    }
+    
+    
+    //    sp_mat A, L, U;
+    //    mat B;
+    //
+    //	//SuperMatrix    A, L, U;
+    //	//SuperMatrix    B;
+    //	//NCformat       *Ustore;
+    double         *a,*rhs; //,*u;
+    int            *asub, *xa;
+    int            *perm_r;  //row permutations from partial pivoting
+    int            *perm_c;  //column permutation vector
+    int            info, nrhs,row_inc;
+    int      m, n, nnz,index;
+    //	//superlu_options_t options;
+    //	//SuperLUStat_t stat;
+    //	//set_default_options(&options);
+    //
+    //
+    //
+    //
+    m = n =  N;
+    nnz = N * 5;
+    //
+    //    uvec rowindA(nnz);
+    //
+    //    uvec colptrA(n+1);
+    //
+    //    vec valuesA(nnz);
+    //    fprintf(stderr, "in");
+    
+    
+    MatrixXi rowind_E(nnz, 1);
+    MatrixXi colptr_E(n+1, 1);
+    MatrixXd values_E(nnz, 1);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //if ( !(a = (double *)malloc(nnz * sizeof(double))) ) strerror(1);
+    //if ( !(asub = (int *)malloc(nnz * sizeof(int))) ) strerror(1);
+    //if ( !(xa = (int *)malloc((n+1) * sizeof(int))) ) strerror(1);
+    
+    
+    nrhs = 1;
+    index = 0;
+    if ( !(rhs = (double *) malloc(m * nrhs * sizeof(double))) ) strerror(1);;
+    row_inc = 0;
+    
+    fprintf(stderr, "in");
+    for (int y = 1; y < src->height-1; y++) {
+        for (int x = 1; x < src->width-1; x++) {
+            if (mask->imageData[x+y*src->width]) {  //Variable
+                
+                unsigned int id = x+y*src->width;
+                
+                
+                colptr_E(row_inc, 0) = index;
+                //colptrA(row_inc) = index;
+                
+                //Right hand side is initialized to zero
+                CvScalar bb=cvScalarAll(0);
+                
+                if (mask->imageData[(x)+(y-1)*src->width]) {
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id-src->width];
+                    
+                    //valuesA(index) = 1.0;
+                    //rowindA(index) = masked[id-src->width];
+                    index++;
+                } else {
+                    // Known pixel, update right hand side
+                    bb=sub(bb,cvGet2D(src,y-1,x));
+                }
+                
+                
+                if (mask->imageData[(x-1)+(y)*src->width]) {
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id-1];
+                    
+                    //valuesA(index) = 1.0;
+                    //rowindA(index) = masked[id-1];
+                    index++;
+                } else {
+                    bb=sub(bb,cvGet2D(src,y,x-1));
+                }
+                
+                if (index >= nnz) {
+                    printf("a111111");
+                }
+                
+                values_E(index, 0) = -4.0;
+                rowind_E(index, 0) = masked[id];
+                
+                //valuesA(index) = -4.0;
+                //rowindA(index) = masked[id];
+                index++;
+                
+                if (mask->imageData[(x+1)+(y)*src->width]) {
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id+1];
+                    
+                    //valuesA(index) = 1.0;
+                    //rowindA(index) = masked[id+1];
+                    index++;
+                } else {
+                    bb=sub(bb,cvGet2D(src,y,x+1));
+                }
+                
+                if (mask->imageData[(x)+(y+1)*src->width]) {
+                    if (index >= nnz) {
+                        printf("a111111");
+                    }
+                    
+                    values_E(index, 0) = 1.0;
+                    rowind_E(index, 0) = masked[id+src->width];
+                    
+                    //valuesA(index) = 1.0;
+                    //rowindA(index) = masked[id+src->width];
+                    index++;
+                } else {
+                    bb=sub(bb,cvGet2D(src,y+1,x));
+                }
+                
+                unsigned int i = masked[id];
+                //Spread the right hand side so we can solve using TAUCS for
+                //3 channels at once.
+                for (int chan=0; chan<src->nChannels; chan++) {
+                    
+                    if (i + N*chan > (m*nrhs)) printf("humped");
+                    rhs[i+N*chan] = bb.val[chan];
+                }
+                row_inc++;
+            }
+        }
+    }
+    
+    colptr_E(n, 0) = index;
+    
+    //    cout << "VALUES MATRIX: \n ";
+    //    for (int i = 0; i < nnz; i++) {
+    //        cout << values_E.coeffRef(i, 0) << ",";
+    //    }
+    //    cout << endl;
+    //
+    //    cout << "\n\n\n\n\n" << endl;
+    //    //cout << colptr_E << endl;
+    //
+    //
+    //    cout << "row ind: \n ";
+    //    for (int i = 0; i < nnz; i++) {
+    //        cout << rowind_E.coeffRef(i, 0) << ",";
+    //    }
+    //    cout << endl;
+    //
+    //    cout << "\n\n\n\n\n" << endl;
+    //
+    //
+    //    cout << "colptr: \n ";
+    //    for (int i = 0; i < n+1; i++) {
+    //        cout << colptr_E.coeffRef(i, 0) << ",";
+    //    }
+    //    cout << endl;
+    //
+    //    cout << "\n\n\n\n\n" << endl;
+    
+    
+    
+    
+    printf("out");
+    fflush(stdout);
+    assert(row_inc == N);
+    //colptrA(n) = index;
+    
+    printf("ascas");
+    
+    //uvec rowindA = uvec(*asub, 1);
+    
+    printf("1");
+    
+    //uvec colptrA = uvec(*xa, n + 1);
+    printf("2");
+    
+    //vec valuesA = vec(*a, nnz);
+    //Create matrix A in the format expected by SuperLU.
+    //create_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
+    //Create right-hand side matrix B.
+    //create_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
+    //Set the default input options.
+    printf("ascas");
+    //rowindA.transform( [](double val) { return (val > 8640 ? 0.0 : val); } );
+    //valuesA.transform( [](double val) { return (std::isnan(val) ? 0.0 : val); } );
+    
+    //rowindA.print();
+    
+    //cout << colptr_E << endl;
+    
+    
+    
+    
+    //A = sp_mat(rowindA, colptrA, valuesA, m, n);
+    
+    
+    
+    
+    
+    
+    typedef Triplet<double> T;
+    std::vector<T> tripletList;
+    
+    
+    
+    for (int i = 0; i < n; i++) {
+        
+        for (int j = colptr_E.coeffRef(i, 0); j < colptr_E.coeffRef(i+1, 0); j++) {
+            
+            //cout << rowind_E.coeffRef(j, 0) <<endl;
+            tripletList.push_back(T(rowind_E.coeffRef(j, 0), i, values_E.coeffRef(j, 0)));
+            
+        }
+    }
+    
+    //cout << "non zero " << tripletList.size() << endl;
+    
+    
+    
+    SparseMatrix<double> A_eigen(m, n);
+    
+    
+    
+    A_eigen.setFromTriplets(tripletList.begin(), tripletList.end());
+    
+    
+    
+    
+    
+    //    cout << "A MAtrix: \n ";
+    //    for (int i = 0; i < m; i++) {
+    //        for (int j = 0; j < n; j++) {
+    //            if (A_eigen.coeffRef(i, j) != 0) {
+    //                cout << A_eigen.coeffRef(i, j) << endl;
+    //
+    //        }
+    //        }
+    //
+    //
+    //    }
+    
+    //cout << "\n\n\n\n\n" << endl;
+    
+    
+    
+    
+    
+    
+    //if (A(96, 0) != A_eigen.coeffRef(96, 0)) {
+    //  printf("a");
+    //  strerror(1);
+    //}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    printf("reached here");
+    
+    
+    
+    
+    //A.transform( [](double val) { return (std::isnan(val) ? 0.0 : val); } );
+    //mat A_ = mat(A);
+    //cout << A_.size() << endl;
+    
+    
+    
+    
+    //B = mat(rhs, m, nrhs);
+    
+    //cout << "uyfytdjyrdjtxdfyghuasdfghjkl,mn \n \n\n\n" << endl;
+    
+    //B.print();
+    
+    Map<MatrixXd> B_eigen(rhs, m, nrhs);
+    
+    //cout << "uyfytdjyrdjtxdfyghuasdfghjkl,mn \n \n\n\n" << endl;
+    
+    
+    //cout << B_eigen << endl;
+    //set_default_options(&options);
+    //options.ColPerm = NATURAL;
+    //options.Trans = TRANS;
+    //options.ColPerm = COLAMD;
+    if ( !(perm_r = (int *)malloc(m * sizeof(int))) ) strerror(1);
+    if ( !(perm_c = (int *)malloc(n * sizeof(int))) ) strerror(1);
+    
+    
+    //Initialize the statistics variables.
+    //StatInit(&stat);
+    //Solve the linear system.
+    //dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
+    
+    //printf("aaaaaaa");
+    
+    
+    SimplicialLDLT<SparseMatrix<double> > solver;
+    
+    solver.compute(A_eigen);
+    
+    MatrixXd X = solver.solve(B_eigen);
+    
+    Map<VectorXd> u(X.data(),X.size());
+    
+    //mat X = spsolve(A, B, "lapack");
+    
+    //vec u = vectorise(X);
+    //Ustore = (NCformat *)B.Store;
+    //u = (double*) Ustore->nzval;
+    IplImage* result=cvCreateImage(cvGetSize(src),32,src->nChannels);
+    cvCopy(src,result);
+    for (int y = 1; y < src->height; y++) {
+        for (int x = 1; x < src->width; x++) {
+            if (mask->imageData[(x)+(y)*src->width]) {
+                unsigned int id = y*src->width+x;
+                unsigned int ii = masked[id];
+                CvScalar p;
+                for (int chan=0; chan<src->nChannels; chan++) {
+                    p.val[chan]=u(ii+N*chan);
+                }
+                cvSet2D(result,y,x,p);
+            }
+        }
+    }
+    // Clean Up Solver
+    //superlu_free (rhs);
+    //superlu_free(perm_r);
+    //superlu_free (perm_c);
+    //Destroy_CompCol_Matrix(&A);
+    //Destroy_SuperMatrix_Store(&B);
+    //Destroy_SuperNode_Matrix(&L);
+    //Destroy_CompCol_Matrix(&U);
+    return result;
 }
+
+
 
 arma::mat B;
 
@@ -486,13 +756,19 @@ int GFHOG::get_best_cluster(std::vector<double> &descript, Value &centers, int k
     return best_label;
 }
 
- std::map<std::string, double> GFHOG::compute_search(Value &freq_hist, Value &centers, int k) {
-    
-     std::map<std::string, double> rank;
-     double B[]={2.7181005369557116, 1.6554818509355071, 1.579879110192556, 3.3524072174927233, 2.2730262907525014, 2.4651040224918206, 2.1892564076870427, 2.7646205525906042, 2.900422093749666, 2.5902671654458267, 2.617295837833746, 3.123565645063876, 2.703062659591171, 2.8302178350764176, 2.5902671654458267, 2.4769384801388235, 2.282782465697866, 3.0576076772720784, 2.7806208939370456, 2.8134107167600364, 2.631089159966082, 2.513306124309698, 3.079113882493042, 3.8632328412587142, 2.9565115604007097, 2.8473122684357177, 2.501036031717884, 2.488914671185539, 2.5383074265151158, 2.9565115604007097, 2.995732273553991, 2.8302178350764176, 2.9187712324178627, 3.036554268074246, 2.659260036932778, 2.364460496712133, 2.563949857128453, 3.540459448995663, 2.5257286443082556, 2.5257286443082556, 5.521460917862246, 2.617295837833746, 2.513306124309698, 2.3330443004787544, 2.419118909249997, 2.900422093749666, 2.05572501506252, 2.5902671654458267, 3.101092789211817, 3.101092789211817, 2.4304184645039304, 2.7333680090865, 2.882403588246988, 3.1465551632885744, 2.900422093749666, 2.995732273553991, 3.170085660698769, 2.9565115604007097, 3.036554268074246, 2.6882475738060303, 2.796881414808826, 1.9105430052180221, 2.7181005369557116, 2.7181005369557116, 1.783791299578878, 2.385966701933097, 2.864704011147587, 3.2968373663379125, 2.6036901857779675, 2.2256240518579173, 2.4534079827286295, 2.488914671185539, 3.1941832122778293, 2.5383074265151158, 2.9565115604007097, 2.9565115604007097, 2.617295837833746, 1.9589953886039688, 2.5770219386958058, 2.900422093749666, 2.3330443004787544, 2.4651040224918206, 2.703062659591171, 2.488914671185539, 2.441847160327553, 2.9565115604007097, 2.9565115604007097, 2.995732273553991, 2.900422093749666, 1.9589953886039688, 2.6036901857779675, 2.419118909249997, 2.882403588246988, 2.5257286443082556, 2.8473122684357177, 2.488914671185539, 3.079113882493042, 2.7333680090865, 2.407945608651872, 2.995732273553991, 3.170085660698769, 2.5902671654458267, 2.501036031717884, 2.659260036932778, 3.3524072174927233, 2.703062659591171, 2.7181005369557116, 2.6736487743848776, 2.7181005369557116, 3.101092789211817, 2.882403588246988, 2.796881414808826, 3.1465551632885744, 2.322787800311565, 2.111964733385396, 2.8473122684357177, 2.6882475738060303, 3.270169119255751, 2.017406150760383, 2.864704011147587, 3.079113882493042, 3.036554268074246, 2.9187712324178627, 3.1941832122778293, 3.7297014486341915, 3.170085660698769, 2.882403588246988, 2.882403588246988, 2.6736487743848776, 3.0159349808715104, 2.703062659591171, 2.6882475738060303, 2.4534079827286295, 2.8473122684357177, 2.882403588246988, 2.4534079827286295, 2.703062659591171, 2.2256240518579173, 2.631089159966082, 2.4534079827286295, 3.0576076772720784, 2.9187712324178627, 2.5383074265151158, 1.9379419794061366, 2.9374633654300153, 2.864704011147587, 2.631089159966082, 2.302585092994046, 2.4534079827286295, 2.513306124309698, 2.8302178350764176, 2.5510464522925456, 2.8302178350764176, 2.312635428847547, 2.441847160327553, 2.796881414808826, 2.900422093749666, 2.659260036932778, 2.8473122684357177, 3.3813947543659757, 2.302585092994046, 2.2633643798407643, 2.5510464522925456, 1.9519282213808764, 2.7333680090865, 1.5847452998437288, 3.170085660698769, 2.995732273553991, 2.9759296462578115, 2.645075401940822, 3.324236340526027, 2.631089159966082, 2.7646205525906042, 2.322787800311565, 2.8302178350764176, 2.7333680090865, 2.282782465697866, 2.9759296462578115, 2.9565115604007097, 2.7488721956224653, 2.385966701933097, 3.411247717515657, 2.2537949288246137, 2.659260036932778, 2.7181005369557116, 2.9759296462578115, 2.703062659591171, 3.170085660698769, 3.079113882493042, 2.488914671185539, 2.8473122684357177, 4.961845129926823, 2.396895772465287, 3.2188758248682006, 2.9374633654300153, 1.6245515502441485, 2.364460496712133, 2.9565115604007097, 3.0576076772720784, 5.115995809754082, 2.9565115604007097, 2.7333680090865, 2.796881414808826, 3.2441936328524905, 2.900422093749666, 2.6036901857779675, 2.9759296462578115, 2.995732273553991, 2.9374633654300153, 2.5257286443082556, 2.645075401940822, 2.488914671185539, 2.441847160327553, 2.6882475738060303, 2.207274913189721, 1.6450650900772514, 2.8473122684357177, 2.419118909249997, 2.3434070875143007, 2.0325579557809856, 2.995732273553991, 3.473768074496991, 2.0714733720306593, 2.9374633654300153, 2.9187712324178627, 3.123565645063876, 2.796881414808826, 2.6736487743848776, 3.0576076772720784, 2.8302178350764176, 2.282782465697866, 2.4769384801388235, 2.5510464522925456, 2.5510464522925456, 2.7488721956224653, 3.123565645063876, 3.2188758248682006, 2.5257286443082556, 2.7806208939370456, 3.0159349808715104, 2.6736487743848776, 2.995732273553991, 1.9877743531540122, 2.796881414808826, 2.7646205525906042, 2.2164073967529934, 2.6736487743848776, 2.9374633654300153, 2.5383074265151158, 3.079113882493042, 2.8473122684357177, 3.2188758248682006, 2.5770219386958058, 2.441847160327553, 3.575550768806933, 2.659260036932778, 3.123565645063876, 2.882403588246988, 2.4534079827286295, 2.7488721956224653, 2.396895772465287, 2.488914671185539, 2.864704011147587, 2.6736487743848776, 2.9374633654300153, 3.0159349808715104, 3.036554268074246, 2.8134107167600364, 3.0576076772720784, 2.8302178350764176, 2.6036901857779675, 3.2188758248682006, 2.5770219386958058, 3.170085660698769, 3.2968373663379125, 2.9759296462578115, 2.6882475738060303, 3.4420193761824107, 2.322787800311565, 2.7181005369557116, 2.282782465697866, 3.079113882493042, 2.796881414808826, 2.703062659591171, 2.9759296462578115, 2.7181005369557116, 3.611918412977808, 2.441847160327553, 3.101092789211817, 2.7181005369557116, 2.9374633654300153, 1.7147984280919266, 2.900422093749666, 2.05572501506252, 2.8134107167600364, 1.9661128563728327, 2.995732273553991, 2.5770219386958058, 2.796881414808826, 2.563949857128453, 1.9173226922034008, 3.1941832122778293, 2.631089159966082, 2.5902671654458267, 2.5510464522925456, 2.864704011147587, 2.5510464522925456, 2.8134107167600364, 2.8473122684357177, 2.882403588246988, 2.4651040224918206, 2.796881414808826, 2.9374633654300153, 2.8473122684357177, 2.900422093749666, 2.631089159966082, 2.8134107167600364, 3.2968373663379125, 2.659260036932778, 2.995732273553991, 2.796881414808826, 2.4769384801388235, 2.7646205525906042, 2.501036031717884, 2.7806208939370456, 4.961845129926823, 2.9187712324178627, 2.2633643798407643, 2.2926347621408776, 2.900422093749666, 3.2968373663379125, 2.5383074265151158, 2.563949857128453, 3.575550768806933, 2.796881414808826, 3.170085660698769, 2.6882475738060303, 3.1465551632885744, 2.234926444520231, 2.631089159966082, 2.631089159966082, 3.036554268074246, 2.6736487743848776, 2.419118909249997, 2.864704011147587, 3.101092789211817, 2.3330443004787544, 3.0159349808715104, 5.521460917862246, 2.8134107167600364, 2.7333680090865, 2.513306124309698, 2.7488721956224653, 2.9565115604007097, 2.645075401940822, 2.882403588246988, 2.9187712324178627, 3.1465551632885744, 2.4304184645039304, 2.5510464522925456, 2.563949857128453, 2.9565115604007097, 3.1941832122778293, 3.2188758248682006, 2.6736487743848776, 2.419118909249997, 3.170085660698769, 3.2441936328524905, 3.079113882493042, 2.7333680090865, 2.703062659591171, 2.659260036932778, 3.1941832122778293, 2.864704011147587, 2.9759296462578115, 2.8473122684357177, 3.079113882493042, 2.703062659591171, 3.0576076772720784, 3.101092789211817, 2.5257286443082556, 2.5383074265151158, 3.2441936328524905, 3.1941832122778293, 3.1941832122778293, 2.8302178350764176, 2.7806208939370456, 2.8473122684357177, 2.7333680090865, 3.575550768806933, 2.900422093749666, 2.882403588246988, 2.0402208285265546, 2.8134107167600364, 2.8302178350764176, 2.7806208939370456, 3.0159349808715104, 2.882403588246988, 3.0159349808715104, 3.0576076772720784, 3.170085660698769, 2.8302178350764176, 3.170085660698769, 2.3538783873815965, 2.796881414808826, 2.796881414808826, 3.079113882493042, 2.7333680090865, 2.7333680090865, 2.882403588246988, 3.324236340526027, 2.9565115604007097, 2.8134107167600364, 3.0159349808715104, 3.2188758248682006, 2.8473122684357177, 2.5383074265151158, 3.0576076772720784, 3.079113882493042, 2.364460496712133, 2.8134107167600364, 3.1465551632885744, 3.1465551632885744, 2.617295837833746, 3.101092789211817, 3.3524072174927233, 2.8134107167600364, 3.540459448995663, 2.8134107167600364, 2.617295837833746, 3.036554268074246, 3.324236340526027, 2.282782465697866, 2.5770219386958058, 2.645075401940822, 2.2256240518579173, 2.5257286443082556, 2.2926347621408776, 2.419118909249997, 3.1941832122778293, 2.5770219386958058, 3.0576076772720784, 2.9759296462578115, 3.611918412977808, 2.513306124309698, 3.2968373663379125, 2.7488721956224653, 2.631089159966082, 2.2537949288246137, 2.9187712324178627, 2.3538783873815965, 2.900422093749666, 2.364460496712133, 2.796881414808826, 2.3434070875143007, 3.6888794541139363, 3.540459448995663, 2.631089159966082, 3.1465551632885744, 1.5847452998437288, 2.8473122684357177, 2.703062659591171, 2.703062659591171, 2.8134107167600364, 3.3524072174927233, 3.036554268074246, 2.6036901857779675, 2.5770219386958058, 2.8134107167600364, 2.3538783873815965, 2.137070654516472, 2.703062659591171, 2.8134107167600364, 2.5902671654458267, 2.9374633654300153, 2.441847160327553, 5.521460917862246, 2.631089159966082, 2.796881414808826, 2.563949857128453, 2.9759296462578115, 2.645075401940822, 2.6736487743848776, 3.1465551632885744, 2.5383074265151158, 2.9759296462578115, 3.0576076772720784, 2.7646205525906042, 2.017406150760383, 2.7806208939370456, 2.419118909249997, 2.796881414808826, 3.0159349808715104, 2.7181005369557116, 2.864704011147587, 2.0794415416798357, 2.645075401940822, 2.3330443004787544, 2.9374633654300153, 3.4420193761824107, 2.7646205525906042, 2.5510464522925456, 2.796881414808826, 3.3813947543659757, 3.3813947543659757, 2.322787800311565, 2.882403588246988, 2.796881414808826, 3.324236340526027, 3.079113882493042, 2.645075401940822, 2.7181005369557116, 2.05572501506252, 2.645075401940822, 2.659260036932778, 3.2441936328524905, 2.659260036932778, 2.8473122684357177, 3.2188758248682006, 2.9187712324178627, 3.411247717515657, 5.115995809754082, 2.995732273553991, 2.659260036932778, 2.2926347621408776, 2.9565115604007097, 3.0159349808715104, 3.170085660698769, 2.441847160327553, 2.7488721956224653, 3.101092789211817, 2.162823150618887, 3.0159349808715104, 3.2968373663379125, 3.2968373663379125, 3.575550768806933, 2.645075401940822, 2.501036031717884, 2.6036901857779675, 2.631089159966082, 2.137070654516472, 2.7806208939370456, 2.2926347621408776, 3.0576076772720784, 3.0159349808715104, 2.8473122684357177, 2.9759296462578115, 2.617295837833746, 2.7488721956224653, 2.7333680090865, 2.7333680090865, 2.864704011147587, 3.101092789211817, 3.1941832122778293, 2.563949857128453, 2.4304184645039304, 2.995732273553991, 3.912023005428146, 2.995732273553991, 3.3524072174927233, 3.0576076772720784, 2.7488721956224653, 3.0159349808715104, 2.8473122684357177, 3.036554268074246, 3.3813947543659757, 2.617295837833746, 2.5383074265151158, 2.864704011147587, 3.1465551632885744, 2.2730262907525014, 3.3813947543659757, 2.995732273553991, 3.1941832122778293, 2.9565115604007097, 2.995732273553991, 2.8134107167600364, 2.995732273553991, 3.0576076772720784, 2.7333680090865, 3.1465551632885744, 2.5510464522925456, 3.324236340526027, 2.6036901857779675, 2.5510464522925456, 1.9038089730366778, 2.9187712324178627, 2.5257286443082556, 3.0159349808715104, 1.639897119918809, 3.079113882493042, 2.322787800311565, 2.563949857128453, 3.2441936328524905, 2.631089159966082, 2.563949857128453, 2.407945608651872, 6.907755278982137, 2.7181005369557116, 3.575550768806933, 2.659260036932778, 2.7806208939370456, 2.4534079827286295, 2.488914671185539, 3.079113882493042, 2.302585092994046, 2.7646205525906042, 2.9187712324178627, 3.2968373663379125, 3.036554268074246, 2.6882475738060303, 2.6736487743848776, 3.3813947543659757, 2.882403588246988, 2.563949857128453, 3.036554268074246, 2.864704011147587, 3.101092789211817, 2.7181005369557116, 3.540459448995663, 3.2968373663379125, 2.900422093749666, 2.6036901857779675, 2.9374633654300153, 3.1465551632885744, 2.900422093749666, 2.882403588246988, 2.645075401940822, 2.3434070875143007, 2.631089159966082, 3.036554268074246, 2.385966701933097, 3.170085660698769, 2.6736487743848776, 3.1941832122778293, 3.1941832122778293, 2.900422093749666, 2.995732273553991, 2.6736487743848776, 2.7181005369557116, 2.7806208939370456, 2.4304184645039304, 3.1941832122778293, 2.7646205525906042, 2.645075401940822, 3.324236340526027, 2.4651040224918206, 2.6036901857779675, 2.659260036932778, 2.513306124309698, 2.8134107167600364, 2.282782465697866, 2.631089159966082, 2.9374633654300153, 2.6882475738060303, 2.5902671654458267, 2.9759296462578115, 3.0576076772720784, 1.748699979767608, 3.611918412977808, 3.411247717515657, 3.2441936328524905, 2.796881414808826, 2.7333680090865, 3.036554268074246, 2.1892564076870427, 2.9187712324178627, 2.563949857128453, 2.7488721956224653, 3.912023005428146, 2.6736487743848776, 2.4769384801388235, 1.6044503709230613, 2.501036031717884, 2.407945608651872, 2.7181005369557116, 3.101092789211817, 2.7488721956224653, 3.611918412977808, 3.3524072174927233, 2.563949857128453, 2.9187712324178627, 2.513306124309698, 2.995732273553991, 3.036554268074246, 2.2633643798407643, 2.407945608651872, 2.864704011147587, 3.101092789211817, 2.703062659591171, 2.703062659591171, 2.8134107167600364, 3.036554268074246, 2.9565115604007097, 2.7806208939370456, 3.101092789211817, 2.659260036932778, 3.170085660698769, 2.2537949288246137, 2.5902671654458267, 3.0159349808715104, 2.8302178350764176, 2.617295837833746, 2.882403588246988, 2.645075401940822, 2.7181005369557116, 2.995732273553991, 3.3524072174927233, 3.575550768806933, 5.521460917862246, 2.5770219386958058, 2.9187712324178627, 2.6882475738060303, 2.198225077669803, 2.9759296462578115, 3.0576076772720784, 2.8473122684357177, 3.2188758248682006, 3.411247717515657, 2.501036031717884, 3.123565645063876, 2.7488721956224653, 2.7646205525906042, 2.9374633654300153, 2.501036031717884, 2.7181005369557116, 2.631089159966082, 3.7722610630529876, 2.617295837833746, 3.575550768806933, 2.8302178350764176, 2.882403588246988, 3.506557897319982, 2.8473122684357177, 2.24431618487007, 2.5902671654458267, 2.4769384801388235, 2.9374633654300153, 3.0159349808715104, 2.9187712324178627, 2.617295837833746, 2.8473122684357177, 3.036554268074246, 2.645075401940822, 1.9519282213808764, 2.9565115604007097, 3.079113882493042, 2.9565115604007097, 2.5257286443082556, 2.796881414808826, 5.521460917862246, 3.3813947543659757, 2.8473122684357177, 3.170085660698769, 3.6888794541139363, 2.7806208939370456, 2.796881414808826, 2.864704011147587, 3.2441936328524905, 2.864704011147587, 3.540459448995663, 3.036554268074246, 2.8302178350764176, 2.9759296462578115, 2.7181005369557116, 3.816712825623821, 2.8302178350764176, 2.9759296462578115, 2.900422093749666, 2.900422093749666, 3.611918412977808, 4.199705077879927, 2.5383074265151158, 2.796881414808826, 2.7646205525906042, 2.5257286443082556, 2.563949857128453, 2.8134107167600364, 2.617295837833746, 2.407945608651872, 2.111964733385396, 3.6888794541139363, 2.5510464522925456, 2.501036031717884, 2.563949857128453, 2.5510464522925456, 2.9374633654300153, 3.6888794541139363, 2.8473122684357177, 3.611918412977808, 2.8302178350764176, 2.864704011147587, 2.864704011147587, 2.302585092994046, 3.611918412977808, 3.473768074496991, 3.036554268074246, 3.0576076772720784, 3.3524072174927233, 2.617295837833746, 3.036554268074246, 2.995732273553991, 2.7488721956224653, 5.298317366548036, 3.036554268074246, 2.7181005369557116, 2.0874737133771, 2.7646205525906042, 2.4651040224918206, 2.4534079827286295, 2.488914671185539, 2.617295837833746, 3.411247717515657, 3.079113882493042, 2.645075401940822, 2.703062659591171, 2.645075401940822, 2.995732273553991, 2.9187712324178627, 2.3434070875143007, 3.036554268074246, 3.1941832122778293, 2.9374633654300153, 2.9565115604007097, 2.995732273553991, 3.4420193761824107, 2.995732273553991, 2.995732273553991, 6.214608098422191, 2.5902671654458267, 2.703062659591171, 3.036554268074246, 2.703062659591171, 2.9759296462578115, 3.0576076772720784, 2.5510464522925456, 2.6736487743848776, 2.563949857128453, 2.645075401940822, 2.8302178350764176, 3.2188758248682006, 3.912023005428146, 3.2441936328524905, 3.2968373663379125, 1.9379419794061366, 2.8302178350764176, 2.513306124309698, 1.8515094736338291, 2.282782465697866, 4.961845129926823, 2.995732273553991, 2.5902671654458267, 2.7806208939370456, 2.6036901857779675, 2.9565115604007097, 2.9374633654300153, 2.900422093749666, 3.123565645063876, 2.513306124309698, 2.2633643798407643, 2.6882475738060303, 3.170085660698769, 3.0576076772720784, 2.882403588246988, 3.079113882493042, 2.5902671654458267, 3.0159349808715104, 2.5383074265151158, 2.4651040224918206, 2.882403588246988, 3.036554268074246, 2.364460496712133, 2.385966701933097, 3.270169119255751, 2.5902671654458267, 2.2926347621408776, 3.0159349808715104, 2.047942874620465, 2.995732273553991, 3.2441936328524905, 2.995732273553991, 2.2537949288246137, 2.864704011147587, 2.7181005369557116, 2.5510464522925456, 3.170085660698769, 3.101092789211817, 2.882403588246988, 2.513306124309698, 2.6736487743848776, 4.3428059215206005, 2.995732273553991, 2.8302178350764176, 2.631089159966082, 2.8134107167600364, 2.7806208939370456, 2.5902671654458267, 5.298317366548036, 2.995732273553991, 2.631089159966082, 3.2188758248682006, 2.8302178350764176, 2.4534079827286295, 3.123565645063876, 2.900422093749666, 3.2188758248682006, 2.9187712324178627, 2.995732273553991, 2.9187712324178627, 2.5510464522925456, 2.9565115604007097, 5.115995809754082, 3.036554268074246, 2.9374633654300153, 1.6450650900772514, 2.631089159966082, 2.441847160327553, 3.270169119255751, 3.411247717515657, 2.9565115604007097, 2.5902671654458267, 2.9759296462578115, 2.7181005369557116, 2.6036901857779675, 2.7488721956224653, 3.123565645063876, 2.7806208939370456, 2.5257286443082556, 2.322787800311565, 4.961845129926823, 2.9374633654300153, 2.703062659591171, 2.6736487743848776, 2.864704011147587, 3.123565645063876, 2.5902671654458267, 2.882403588246988, 2.2256240518579173, 2.9374633654300153, 2.882403588246988, 2.9374633654300153, 2.900422093749666, 3.079113882493042, 3.079113882493042, 3.1465551632885744, 2.995732273553991, 3.1941832122778293, 2.2537949288246137, 2.796881414808826, 2.501036031717884, 2.659260036932778, 2.8302178350764176, 2.882403588246988, 2.8473122684357177, 3.1941832122778293, 3.079113882493042, 3.170085660698769, 2.2926347621408776, 2.617295837833746, 3.079113882493042, 2.882403588246988, 3.2968373663379125, 2.1892564076870427, 2.4769384801388235, 2.5383074265151158, 2.312635428847547, 3.270169119255751, 3.036554268074246, 3.123565645063876, 3.079113882493042, 2.9759296462578115, 1.8388510767619055, 2.5257286443082556, 2.9565115604007097, 3.079113882493042, 2.796881414808826, 2.6882475738060303, 3.0159349808715104, 2.864704011147587, 2.513306124309698, 2.8302178350764176, 3.2441936328524905, 3.324236340526027, 2.9187712324178627, 3.2188758248682006, 3.540459448995663, 2.900422093749666, 4.135166556742356, 2.7488721956224653, 2.501036031717884, 2.796881414808826, 3.079113882493042, 2.2256240518579173, 2.7806208939370456, 2.882403588246988, 3.912023005428146, 2.631089159966082, 2.441847160327553, 3.1941832122778293,  3.1465551632885744};
+
+
+
+ std::vector<std::pair<double, string>> GFHOG::compute_search(Value &freq_hist, Value &centers, Value &inv_freq, int k) {
      
-     vec A(B, 1000);
-     cout << A.size() << endl;
+     std::vector<std::pair<double, string>> rank;
+     
+     vec inverse_freq(2000);
+     
+     for (int i = 0; i < k; i++) {
+         inverse_freq(i) = inv_freq[i].GetDouble();
+     }
+
     vec img_hist = zeros(k);
     
     for (GFHOG::iterator desc = this->begin(); desc < this->end(); desc++) {
@@ -503,25 +779,31 @@ int GFHOG::get_best_cluster(std::vector<double> &descript, Value &centers, int k
     double normalize = norm(img_hist);
     for (int j = 0; j < img_hist.size(); j++) {
         img_hist(j) /= normalize;
+
     }
+   
+     
+     
+
+     
     
-    
-    
-        
-    for (Value::ConstMemberIterator iter = freq_hist.MemberBegin(); iter != freq_hist.MemberEnd(); ++iter) {
+    //Value::ConstMemberIterator iter = freq_hist.MemberBegin();
+
+     for (Value::ConstMemberIterator iter = freq_hist.MemberBegin(); iter != freq_hist.MemberEnd(); ++iter) {
+        //cout<<iter->value.Size()<<endl;
         std::string name = iter->name.GetString();
         vec desc_freq(k);
         double dist = 0.0;
         for (int j = 0; j < k; j++) {
+            
             desc_freq(j) = iter->value[j].GetDouble();
             
         }
-        dist = norm((desc_freq - img_hist)%A, 2);
-        rank.insert(std::make_pair(name, dist));
-        cout << rank[name] << endl;
+        dist = norm((desc_freq - img_hist)%inverse_freq, 2);
+        rank.push_back(std::make_pair(dist, name));
     }
-    
      return rank;
+     
     
 }
 

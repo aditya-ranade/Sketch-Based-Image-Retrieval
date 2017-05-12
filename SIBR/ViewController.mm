@@ -66,9 +66,15 @@ std::vector<std::pair<double, string>> mapVector;
 
 @implementation ViewController
 
+- (void)viewWillAppear:(BOOL)animated{
+    [self.view addSubview:drawView];
+    [drawView clear];
+    
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.view addSubview:drawView];
+    //[self.view addSubview:drawView];
     /*
     string buf = "";
     
@@ -452,14 +458,25 @@ std::vector<std::pair<double, string>> mapVector;
         // Get destination view
         CollectionViewController *vc = [segue destinationViewController];
         cout<<"sd"<<endl;
-        cout<<mapVector[0].second.c_str()<<endl;
+       // cout<<mapVector[0].second.c_str()<<endl;
         // Get button tag number (or do whatever you need to do here, based on your object
         NSString *a=[NSString stringWithUTF8String:mapVector[0].second.c_str()];
         NSString *b=[NSString stringWithUTF8String:mapVector[1].second.c_str()];
         NSString *c=[NSString stringWithUTF8String:mapVector[2].second.c_str()];
         NSString *d=[NSString stringWithUTF8String:mapVector[3].second.c_str()];
-        NSString *e=[NSString stringWithUTF8String:mapVector[4].second.c_str()];
-        NSArray *pho = [NSArray arrayWithObjects: a, b, c, d, e, nil];
+        NSString *m=[NSString stringWithUTF8String:mapVector[4].second.c_str()];
+        NSString *e=[NSString stringWithUTF8String:mapVector[5].second.c_str()];
+        NSString *f=[NSString stringWithUTF8String:mapVector[6].second.c_str()];
+        NSString *g=[NSString stringWithUTF8String:mapVector[7].second.c_str()];
+        NSString *h=[NSString stringWithUTF8String:mapVector[8].second.c_str()];
+        NSString *i=[NSString stringWithUTF8String:mapVector[9].second.c_str()];
+        NSString *j=[NSString stringWithUTF8String:mapVector[10].second.c_str()];
+        NSString *k=[NSString stringWithUTF8String:mapVector[11].second.c_str()];
+        NSString *l=[NSString stringWithUTF8String:mapVector[12].second.c_str()];
+        NSString *n=[NSString stringWithUTF8String:mapVector[13].second.c_str()];
+        NSString *o=[NSString stringWithUTF8String:mapVector[14].second.c_str()];
+        
+        NSArray *pho = [NSArray arrayWithObjects: a, b, c, d, m,e,f,g,h,i,j,k,l,n,o, nil];
         
         // Pass the information to your destination view
         vc.process_photos=pho;
@@ -758,13 +775,48 @@ IplImage *CreateIplImageFromUIImage(UIImage *image) {
     //        /* could not open directory */
     //        perror ("file not found");
     //
+    Document freq_hist;
+    Document centers;
+    Document inv_freq;
+    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"freq_hist_normalized" ofType:@"json"];
+    if (filePath2) {
+        NSString *myText = [NSString stringWithContentsOfFile:filePath2];
+        if (myText) {
+            std::cout<<"FUCKasdadssad\n\n\n\n\n"<<std::endl;
+            std::string a=std::string([myText UTF8String]);
+            freq_hist.Parse(a.c_str());
+        }
+    }
+    NSString *filePath3 = [[NSBundle mainBundle] pathForResource:@"centers" ofType:@"json"];
+    if (filePath3) {
+        NSString *myText = [NSString stringWithContentsOfFile:filePath3];
+        if (myText) {
+            std::cout<<"FUCKasdadssad\n\n\n\n\n"<<std::endl;
+            std::string b=std::string([myText UTF8String]);
+            centers.Parse(b.c_str());
+            
+        }
+    }
+    NSString *filePath4 = [[NSBundle mainBundle] pathForResource:@"inverse_tf" ofType:@"json"];
+    if (filePath4) {
+        std::cout<<"BROOOOasdadssad\n\n\n\n\n"<<std::endl;
+        NSString *myText = [NSString stringWithContentsOfFile:filePath4];
+        if (myText) {
+            
+            std::string c=std::string([myText UTF8String]);
+            inv_freq.Parse(c.c_str());
+            
+            
+        }
+    }
+
     
-    
-    Document freq_hist = read_files("/Users/akshat/Downloads/freq_hist_normalized.json");
-    Document centers = read_files("/Users/akshat/Downloads/centers.json");
-    
+  //  Document centers = read_files("/Users/akshat/Downloads/centers.json");
+    // = read_files("Users/akshat/Downloads/inverse_tf.json");
+    //Document lol=read_files("inverse_tf.json");
     Value &new_center = centers;
     Value &new_freq_hist = freq_hist;
+    Value &inv = inv_freq;
     
     
     
@@ -773,17 +825,20 @@ IplImage *CreateIplImageFromUIImage(UIImage *image) {
     GFHOG search;
     
     
-    std::map<std::string, double> rank;
-    rank = descriptor.compute_search(new_freq_hist, new_center, 1000);
-    
-    cout << rank.size() << endl;
-    
-    
-    
+    //std::map<std::string, double> rank;
     
     //std::vector<std::pair<double, string>> mapVector;
+    
+    mapVector = descriptor.compute_search(new_freq_hist, new_center,inv, 2000);
+    
+    //cout << rank.size() << endl;
+    
+    
+    /*
+    
+    std::vector<std::pair<double, string>> mapVector;
     std::map<string, double> map1;
-    // Insert entries
+     Insert entries
     for (auto iterator = rank.begin(); iterator != rank.end(); ++iterator) {
         string temp = iterator->first;
         
@@ -791,6 +846,7 @@ IplImage *CreateIplImageFromUIImage(UIImage *image) {
         
         mapVector.push_back(make_pair(iterator->second, iterator->first));
     }
+     */
     
     sort(mapVector.begin(), mapVector.end());
     
