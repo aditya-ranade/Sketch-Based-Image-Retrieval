@@ -1,6 +1,5 @@
 # SIBR
 
-New Video Link - https://www.youtube.com/watch?v=Q6PpuiXgQX0
 
 
 Code Citations - 
